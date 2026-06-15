@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Architectural Light Gallery Theme Palette */
+    --background: #FBFBFA;      /* Alabaster Warm White */
+    --surface: #F4F4F2;         /* Soft Off-White Stone */
+    --border: #E2E2DF;          /* Light Architectural Line Divider */
+    --text-primary: #1A1A1A;    /* Deep Charcoal for sharp reading */
+    --text-secondary: #6A6A66;  /* Soft Muted Charcoal for sub-labels */
+    --accent-gold: #7D6E5D;     /* Muted Warm Earth Tone Accent */
+    --accent-gold-bright: #C9A84C; /* True Gold reserved strictly for micro-actions */
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    letter-spacing: -0.01em;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom Signature Premium Element: Restrained 1px Line */
+.gallery-divider {
+  height: 1px;
+  background-color: var(--border);
+  width: 100%;
+  margin: 2rem 0;
 }
