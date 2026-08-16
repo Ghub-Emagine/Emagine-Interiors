@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
-      <body className="flex flex-col min-h-screen pt-20">
+      <body className="flex flex-col min-h-screen pt-20" suppressHydrationWarning>
         <Navbar />
         <main className="flex-grow">
           {children}

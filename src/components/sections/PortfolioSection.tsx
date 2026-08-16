@@ -7,6 +7,12 @@ export default function PortfolioSection() {
     { id: 3, title: "Akshaya Metropolis", location: "OMR, Chennai", type: "Essential Tier" },
   ];
 
+  const projectImages: Record<number, string> = {
+    1: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop",
+    2: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop",
+    3: "https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?q=80&w=800&auto=format&fit=crop",
+  };
+
   return (
     <section id="work" className="py-24 bg-[#F4F4F2]">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -34,9 +40,11 @@ export default function PortfolioSection() {
             <div key={project.id} className="group cursor-pointer">
               {/* Image Placeholder Block */}
               <div className="aspect-[4/3] bg-[#E2E2DF] relative overflow-hidden mb-4 border border-[#E2E2DF]">
-                <div className="absolute inset-0 flex items-center justify-center text-[#6A6A66] text-xs uppercase tracking-widest group-hover:scale-105 transition-transform duration-500">
-                  [ Render Placeholder ]
-                </div>
+                <img
+                  src={projectImages[project.id]}
+                  alt={project.title}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
               
               {/* Project Meta Data */}

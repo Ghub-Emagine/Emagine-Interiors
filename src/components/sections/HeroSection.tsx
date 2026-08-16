@@ -46,21 +46,11 @@ export default function HeroSection() {
 
         {/* Right Column: Premium Spatial Anchor Panel */}
         <div className="md:col-span-5 relative w-full h-[350px] md:h-[550px] bg-[#F4F4F2] border border-[#E2E2DF]">
-          {/* 
-            Developer Note: Once hero-render.jpg is placed in your public folder, 
-            uncomment the Next.js Image tag below to display it.
-          */}
-          {/* 
-          <img 
-            src="/images/renders/hero-render.jpg" 
+          <img
+            src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop"
             alt="Bespoke interior spatial rendering layout"
             className="w-full h-full object-cover"
-          /> 
-          */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-2">
-            <span className="font-serif text-lg text-[#1A1A1A]">Spatial Visualization Frame</span>
-            <span className="text-xs text-[#6A6A66] tracking-wider max-w-xs">Drop your premier daylight render into public/images/renders/hero-render.jpg</span>
-          </div>
+          />
         </div>
 
       </div>

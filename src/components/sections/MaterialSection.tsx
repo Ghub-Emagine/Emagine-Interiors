@@ -4,7 +4,7 @@ export default function MaterialSection() {
     { feature: "Carcass Material", eds: "BWR Grade Gurjan Ply", competitor: "Prelam MDF-R", winner: "eds" },
     { feature: "Hardware Brand", eds: "Hettich / Häfele", competitor: "Budget Generic", winner: "eds" },
     { feature: "Visualization", eds: "Your Actual Flat (Pre-Build)", competitor: "Generic Showroom", winner: "eds" },
-    { feature: "Warranty", eds: "1-Year Workmanship", competitor: "1-Year Limited", winner: "draw" },
+    { feature: "Material Guarantee", eds: "100% As-Visualized Spec Match", competitor: "Subject to showroom availability", winner: "eds" },
   ];
 
   return (
