@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { supabase } from "@/lib/supabase";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,11 +14,28 @@ export async function POST(request: Request) {
     const budgetTier = String(formData.get("budgetTier") ?? "").trim();
     const floorPlan = formData.get("floorPlan");
 
+    const name = fullName;
+    const phone = whatsapp;
+    const tier = budgetTier;
+
     if (!fullName || !whatsapp || !location || !budgetTier) {
       return NextResponse.json(
         { success: false, error: "Missing required fields." },
         { status: 400 },
       );
+    }
+
+    const { error: supabaseError } = await supabase.from("website_leads").insert({
+      name,
+      phone,
+      location,
+      tier,
+    });
+
+    if (supabaseError) {
+      console.log(`SUPABASE ERROR: ${supabaseError.message}`);
+    } else {
+      console.log("SUPABASE INSERT SUCCESS");
     }
 
     const attachments =
