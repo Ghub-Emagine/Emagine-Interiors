@@ -1,35 +1,150 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-gold-bright: var(--accent-gold-bright);
+}
+
 @layer base {
   :root {
-    /* Architectural Light Gallery Theme Palette */
-    --background: #FBFBFA;      /* Alabaster Warm White */
-    --surface: #F4F4F2;         /* Soft Off-White Stone */
-    --border: #E2E2DF;          /* Light Architectural Line Divider */
-    --text-primary: #1A1A1A;    /* Deep Charcoal for sharp reading */
-    --text-secondary: #6A6A66;  /* Soft Muted Charcoal for sub-labels */
-    --accent-gold: #7D6E5D;     /* Muted Warm Earth Tone Accent */
-    --accent-gold-bright: #C9A84C; /* True Gold reserved strictly for micro-actions */
+    /*
+      Calm gallery — Apple-adjacent air + Emagine warmth.
+      Cooler white for “clarity” sections; soft stone for atmosphere.
+    */
+    --background: #FBFBFA;
+    --surface: #F3F1EC;
+    --border: #E5E2DB;
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --accent-gold: #6B5B4B;
+    --accent-gold-bright: #C9A84C;
   }
 
   body {
     background-color: var(--background);
     color: var(--text-primary);
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    letter-spacing: -0.01em;
+    font-family: var(--font-cormorant), ui-serif, Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.022em;
   }
 }
 
-/* Custom Signature Premium Element: Restrained 1px Line */
+/* Soft atmosphere behind flat sections */
+.atmosphere {
+  background-color: var(--surface);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(201, 168, 76, 0.08), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(107, 91, 75, 0.06), transparent 50%);
+}
+
 .gallery-divider {
   height: 1px;
   background-color: var(--border);
   width: 100%;
   margin: 2rem 0;
+}
+
+/* Primary sell CTA */
+.btn-primary {
+  background-color: var(--accent-gold-bright);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn-primary:hover {
+  background-color: var(--text-primary);
+  color: var(--background);
+}
+
+.btn-secondary {
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.btn-secondary:hover {
+  background-color: var(--surface);
+  border-color: var(--accent-gold);
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee-scroll 42s linear infinite;
+}
+
+.works-marquee-track {
+  animation: marquee-scroll 55s linear infinite;
+  will-change: transform;
+}
+
+.works-marquee:hover .works-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .works-marquee-track {
+    animation: none;
+  }
+}
+
+/* Flip cards for A–Z solutions */
+.flip-card {
+  perspective: 1200px;
+  height: 220px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner,
+.flip-card:focus-within .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
 }

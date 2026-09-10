@@ -1,0 +1,71 @@
+import { savePageImage } from "./actions";
+import type { PageImage } from "@/lib/types";
+
+export default function PageImageForm({ image }: { image: PageImage }) {
+  return (
+    <form action={savePageImage} className="space-y-6 max-w-xl">
+      <input type="hidden" name="id" value={image.id} />
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image.image_url}
+        alt={image.alt_text ?? image.label}
+        className="w-full max-w-md aspect-video object-cover border border-[var(--border)]"
+      />
+
+      <div>
+        <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
+          Label
+        </label>
+        <input
+          name="label"
+          defaultValue={image.label}
+          className="w-full border border-[var(--border)] bg-white px-4 py-3 text-sm"
+        />
+      </div>
+
+      <div className="border border-[var(--accent-gold-bright)]/40 bg-[var(--surface)] p-5 space-y-4">
+        <p className="text-sm text-[var(--text-secondary)]">
+          Upload a photo from your Chennai projects, or paste an image URL.
+        </p>
+        <div>
+          <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
+            Upload image
+          </label>
+          <input
+            name="image_file"
+            type="file"
+            accept="image/*"
+            className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-[var(--text-primary)] file:text-white file:text-xs file:uppercase file:tracking-widest"
+          />
+        </div>
+        <div>
+          <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
+            Or image URL
+          </label>
+          <input
+            name="image_url"
+            defaultValue={image.image_url}
+            placeholder="https://…"
+            className="w-full border border-[var(--border)] bg-white px-4 py-3 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
+          Alt text
+        </label>
+        <input
+          name="alt_text"
+          defaultValue={image.alt_text ?? ""}
+          className="w-full border border-[var(--border)] bg-white px-4 py-3 text-sm"
+        />
+      </div>
+
+      <button type="submit" className="btn-primary">
+        Save image
+      </button>
+    </form>
+  );
+}
