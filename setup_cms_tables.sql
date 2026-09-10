@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS public.testimonials (
   rating int CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5)),
   status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
   sort_order int NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 ALTER TABLE public.website_leads

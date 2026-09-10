@@ -11,7 +11,7 @@ export async function setTestimonialStatus(
   const supabase = await createClient();
   const { error } = await supabase
     .from("testimonials")
-    .update({ status })
+    .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/testimonials");
@@ -49,6 +49,7 @@ export async function saveTestimonial(formData: FormData) {
     rating,
     status,
     sort_order: sortOrder,
+    updated_at: new Date().toISOString(),
   };
 
   if (id) {
