@@ -11,11 +11,22 @@ import {
 export async function saveSiteSettings(formData: FormData) {
   const supabase = await createClient();
   const now = new Date().toISOString();
-  const rows = SITE_SETTING_KEYS.map((key) => ({
-    key,
-    value: String(formData.get(key) ?? DEFAULT_SITE_SETTINGS[key] ?? "").trim(),
-    updated_at: now,
-  }));
+  const rows = SITE_SETTING_KEYS.map((key) => {
+    // Checkbox: absent when unchecked → store "false"
+    if (key === "lead_digest_enabled") {
+      const raw = formData.get(key);
+      return {
+        key,
+        value: raw === "true" || raw === "on" ? "true" : "false",
+        updated_at: now,
+      };
+    }
+    return {
+      key,
+      value: String(formData.get(key) ?? DEFAULT_SITE_SETTINGS[key] ?? "").trim(),
+      updated_at: now,
+    };
+  });
 
   const { error } = await supabase.from("site_settings").upsert(rows, {
     onConflict: "key",

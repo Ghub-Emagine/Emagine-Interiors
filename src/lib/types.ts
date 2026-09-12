@@ -59,6 +59,8 @@ export type WebsiteLead = {
   notes: string | null;
   has_floor_plan: boolean;
   contacted_at: string | null;
+  proposal_url: string | null;
+  site_visit_at: string | null;
   updated_at: string | null;
 };
 

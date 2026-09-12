@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { trackContactClick } from "@/lib/track-conversion";
+import { studioWaHref } from "@/lib/whatsapp";
 
 /** Mobile sticky bar — drives traffic to free layout form */
 export default function StickyMobileCta({ whatsapp }: { whatsapp: string }) {
@@ -10,9 +11,10 @@ export default function StickyMobileCta({ whatsapp }: { whatsapp: string }) {
   if (pathname?.startsWith("/admin")) return null;
   if (pathname === "/layout-review") return null;
 
-  const wa = `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+  const wa = studioWaHref(
+    whatsapp,
     "Hi Emagine - I'd like a free layout review for my Chennai flat.",
-  )}`;
+  );
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-[55] md:hidden border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-md px-3 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex gap-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">

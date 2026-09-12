@@ -73,6 +73,24 @@ export default function Footer({ brand }: { brand?: Brand }) {
             Blog
           </Link>
           <Link
+            href="/guides"
+            className="text-white/75 hover:text-[var(--accent-gold-bright)]"
+          >
+            Guides
+          </Link>
+          <Link
+            href="/referral"
+            className="text-white/75 hover:text-[var(--accent-gold-bright)]"
+          >
+            Refer a friend
+          </Link>
+          <Link
+            href="/partners"
+            className="text-white/75 hover:text-[var(--accent-gold-bright)]"
+          >
+            Partners
+          </Link>
+          <Link
             href="/layout-review"
             className="text-white/75 hover:text-[var(--accent-gold-bright)]"
           >

@@ -73,6 +73,8 @@ export default async function AdminSettingsPage() {
     },
   ];
 
+  const digestEnabled = settings.lead_digest_enabled === "true";
+
   return (
     <div>
       <div className="mb-8 max-w-2xl">
@@ -114,6 +116,32 @@ export default async function AdminSettingsPage() {
             )}
           </div>
         ))}
+
+        <div className="border border-[var(--border)] bg-white px-4 py-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="lead_digest_enabled"
+              value="true"
+              defaultChecked={digestEnabled}
+              className="mt-1 h-4 w-4 accent-[var(--accent-gold)]"
+            />
+            <span>
+              <span className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] font-semibold mb-1">
+                Daily lead digest email
+              </span>
+              <span className="block text-sm text-[var(--text-primary)]">
+                Send a summary of the last 24 hours of leads to notify emails
+                (via cron). Off by default.
+              </span>
+              <span className="mt-1.5 block text-xs text-[var(--text-secondary)]">
+                Requires <code className="text-xs">CRON_SECRET</code> in Vercel
+                env — never store the secret here. Cron route ships in a later
+                wave; this toggle only enables/disables sending once that exists.
+              </span>
+            </span>
+          </label>
+        </div>
 
         <div className="border border-[var(--border)] bg-[var(--surface)] p-5 text-sm text-[var(--text-secondary)] leading-relaxed">
           <p className="font-semibold text-[var(--text-primary)] mb-2">

@@ -6,12 +6,36 @@ import BrandMark from "@/components/layout/BrandMark";
 import { getPageImageMap } from "@/lib/cms";
 import { pageMedia } from "@/lib/page-image-slots";
 import { getSiteSettings, brandFromSettings } from "@/lib/site-settings";
+import { normalizeBuilder } from "@/lib/builders";
 import SlotMedia from "@/components/ui/SlotMedia";
 import LayoutReviewForm from "./LayoutReviewForm";
 
-export async function generateMetadata(): Promise<Metadata> {
+type Props = {
+  searchParams: Promise<{ builder?: string | string[] }>;
+};
+
+function builderParam(
+  value: string | string[] | undefined,
+): string | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const sp = await searchParams;
+  const builderName = normalizeBuilder(builderParam(sp.builder));
   const settings = await getSiteSettings();
   const brand = brandFromSettings(settings);
+
+  if (builderName) {
+    return {
+      title: `Free Layout Review for ${builderName} | ${brand.name}`,
+      description: `Free layout review for ${builderName} flats in Chennai — modular & full-home interiors from your builder plan. Transparent ₹/sqft, same-day WhatsApp.`,
+    };
+  }
+
   return {
     title: `Free Layout Review | ${brand.name}`,
     description:
@@ -26,7 +50,13 @@ const proofPoints = [
   "No experience-centre visit required to start",
 ];
 
-export default async function LayoutReviewPage() {
+export default async function LayoutReviewPage({ searchParams }: Props) {
+  const sp = await searchParams;
+  const builderName = normalizeBuilder(builderParam(sp.builder));
+  const headline = builderName
+    ? `Free layout review for ${builderName} flats in Chennai`
+    : "Free layout review for Chennai flats";
+
   const [images, settings] = await Promise.all([
     getPageImageMap(),
     getSiteSettings(),
@@ -76,7 +106,7 @@ export default async function LayoutReviewPage() {
               {BRAND_INFO.contact.location} · Limited reviews / week
             </p>
             <h1 className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] leading-snug font-medium">
-              Free layout review for Chennai flats
+              {headline}
             </h1>
             <p className="text-[#FBFBFA]/75 text-base leading-relaxed max-w-md">
               Send your builder floor plan. We WhatsApp back what to watch for

@@ -8,6 +8,26 @@ import {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/** Floor-plan upload limits (contact form). */
+const FLOOR_PLAN_MAX_BYTES = 10 * 1024 * 1024;
+
+function floorPlanValidationError(file: File): string | null {
+  const type = (file.type || "").toLowerCase();
+  const name = (file.name || "").toLowerCase();
+  const byMime =
+    type.startsWith("image/") || type === "application/pdf";
+  const byExt =
+    !type &&
+    /\.(pdf|png|jpe?g|webp|gif|heic|heif|bmp|tiff?)$/i.test(name);
+  if (!byMime && !byExt) {
+    return "Floor plan must be an image (JPG, PNG, WebP, etc.) or a PDF.";
+  }
+  if (file.size > FLOOR_PLAN_MAX_BYTES) {
+    return "Floor plan must be 10MB or smaller.";
+  }
+  return null;
+}
+
 /** In-memory rate limit: 5 POSTs per IP per 10 minutes (per instance). */
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 5;
@@ -163,9 +183,23 @@ export async function POST(request: Request) {
 
     if (!fullName || !whatsapp || !location || !budgetTier) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields." },
+        {
+          success: false,
+          error:
+            "Name, WhatsApp, developer/location, and budget range are required.",
+        },
         { status: 400 },
       );
+    }
+
+    if (floorPlan instanceof File && floorPlan.size > 0) {
+      const fileError = floorPlanValidationError(floorPlan);
+      if (fileError) {
+        return NextResponse.json(
+          { success: false, error: fileError },
+          { status: 400 },
+        );
+      }
     }
 
     const hasFloorPlan =

@@ -1,15 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { BUDGET_BANDS_LAKHS } from "@/lib/constants";
 import DeveloperLocationField from "@/components/ui/DeveloperLocationField";
-import { trackGenerateLead } from "@/lib/track-conversion";
+import {
+  trackFormStart,
+  trackGenerateLead,
+} from "@/lib/track-conversion";
+import { leadPrefillMessage, studioWaHref } from "@/lib/whatsapp";
 
 const STEPS = [
   { n: 1, label: "Contact" },
   { n: 2, label: "Project" },
   { n: 3, label: "Floor plan" },
 ] as const;
+
+const FLOOR_PLAN_MAX_BYTES = 10 * 1024 * 1024;
+
+function isAllowedFloorPlan(file: File): string | null {
+  const type = (file.type || "").toLowerCase();
+  const name = (file.name || "").toLowerCase();
+  const byMime =
+    type.startsWith("image/") || type === "application/pdf";
+  const byExt =
+    !type &&
+    /\.(pdf|png|jpe?g|webp|gif|heic|heif|bmp|tiff?)$/i.test(name);
+  if (!byMime && !byExt) {
+    return "Floor plan must be an image (JPG, PNG, etc.) or PDF.";
+  }
+  if (file.size > FLOOR_PLAN_MAX_BYTES) {
+    return "Floor plan must be 10MB or smaller.";
+  }
+  return null;
+}
 
 type Props = {
   source: string;
@@ -40,16 +64,33 @@ export default function LayoutReviewWizard({
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const formStartFired = useRef(false);
+  const router = useRouter();
 
   const locationId = `lrw-location-${source}`;
+
+  function fireFormStart() {
+    if (formStartFired.current) return;
+    formStartFired.current = true;
+    trackFormStart({ source });
+  }
+
+  useEffect(() => {
+    if (step === 1) fireFormStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once on first-step mount
+  }, []);
 
   const fieldClass = compact
     ? "w-full bg-white border border-[var(--border)] px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-gold-bright)]"
     : "w-full bg-white border border-[var(--border)] px-4 py-3.5 text-sm focus:outline-none focus:border-[var(--accent-gold-bright)] min-h-[48px]";
 
-  const studioWaHref = `https://wa.me/${studioWhatsapp}?text=${encodeURIComponent(
-    "Hi Emagine - I just sent a layout review request for my Chennai flat.",
-  )}`;
+  const successWaHref = studioWaHref(
+    studioWhatsapp,
+    leadPrefillMessage({
+      name: fullName,
+      tier: budgetTier,
+    }),
+  );
 
   function readLocation(): string {
     const el = document.getElementById(locationId) as
@@ -60,6 +101,7 @@ export default function LayoutReviewWizard({
   }
 
   function goNext() {
+    fireFormStart();
     setErrorMessage(null);
     if (step === 1) {
       if (!fullName.trim() || !whatsapp.trim()) {
@@ -81,12 +123,22 @@ export default function LayoutReviewWizard({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    fireFormStart();
     if (step !== 3) {
       goNext();
       return;
     }
 
     setErrorMessage(null);
+
+    if (floorPlan) {
+      const fileError = isAllowedFloorPlan(floorPlan);
+      if (fileError) {
+        setErrorMessage(fileError);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     const form = e.currentTarget;
@@ -127,6 +179,12 @@ export default function LayoutReviewWizard({
         source,
         hasFloorPlan: Boolean(floorPlan && floorPlan.size > 0),
       });
+
+      if (source === "layout-review") {
+        router.push("/layout-review/thanks");
+        return;
+      }
+
       setSubmitted(true);
       setFileName(null);
       setFloorPlan(null);
@@ -150,7 +208,7 @@ export default function LayoutReviewWizard({
           notes and a realistic budget band.
         </p>
         <a
-          href={studioWaHref}
+          href={successWaHref}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center w-full border-2 border-[#25D366] text-[#128C7E] bg-[#25D366]/10 px-5 py-4 text-xs uppercase tracking-widest font-semibold hover:bg-[#25D366]/20 transition-colors min-h-[48px]"
@@ -204,7 +262,10 @@ export default function LayoutReviewWizard({
           <input
             type="text"
             value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            onChange={(e) => {
+              fireFormStart();
+              setFullName(e.target.value);
+            }}
             className={fieldClass}
             autoComplete="name"
           />
@@ -216,7 +277,10 @@ export default function LayoutReviewWizard({
           <input
             type="tel"
             value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
+            onChange={(e) => {
+              fireFormStart();
+              setWhatsapp(e.target.value);
+            }}
             className={fieldClass}
             placeholder="91…"
             autoComplete="tel"
@@ -262,9 +326,19 @@ export default function LayoutReviewWizard({
               type="file"
               name="floorPlan"
               className="absolute inset-0 z-10 w-full h-full opacity-0 cursor-pointer"
-              accept=".pdf,.png,.jpg,.jpeg,image/*"
+              accept=".pdf,.png,.jpg,.jpeg,image/*,application/pdf"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
+                if (file) {
+                  const fileError = isAllowedFloorPlan(file);
+                  if (fileError) {
+                    setFloorPlan(null);
+                    setFileName(null);
+                    setErrorMessage(fileError);
+                    e.target.value = "";
+                    return;
+                  }
+                }
                 setFloorPlan(file);
                 setFileName(file?.name ?? null);
                 setErrorMessage(null);

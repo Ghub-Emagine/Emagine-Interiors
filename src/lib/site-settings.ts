@@ -13,6 +13,8 @@ export type SiteSettings = {
   meta_pixel_id: string;
   lead_webhook_url: string;
   lead_api_key: string;
+  /** Daily lead digest cron — "true" | "false" (string). Auth uses env CRON_SECRET, not a DB key. */
+  lead_digest_enabled: string;
 };
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
@@ -27,6 +29,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   meta_pixel_id: "",
   lead_webhook_url: "",
   lead_api_key: "",
+  lead_digest_enabled: "false",
 };
 
 export const SITE_SETTING_KEYS = Object.keys(

@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { PricingTierMap } from "@/lib/pricing";
+import type { EstimateScope, PricingTierMap } from "@/lib/pricing";
+import { ESTIMATE_SCOPES, estimateLakhsBand } from "@/lib/pricing";
+import { trackEstimateRun } from "@/lib/track-conversion";
+
+const SCOPE_ORDER: EstimateScope[] = ["modular", "full-home"];
 
 export default function PricingToolSection({
   tiers,
@@ -12,6 +16,7 @@ export default function PricingToolSection({
   const defaultKey = keys.includes("executive") ? "executive" : keys[0] ?? "";
   const [sqft, setSqft] = useState<number | "">("");
   const [tier, setTier] = useState(defaultKey);
+  const [scope, setScope] = useState<EstimateScope>("full-home");
   const [estimate, setEstimate] = useState<{ min: string; max: string } | null>(
     null,
   );
@@ -25,11 +30,8 @@ export default function PricingToolSection({
     e.preventDefault();
     if (!sqft || sqft < 500 || !tiers[tier]) return;
 
-    const selectedTier = tiers[tier];
-    const minLakhs = ((Number(sqft) * selectedTier.min) / 100000).toFixed(2);
-    const maxLakhs = ((Number(sqft) * selectedTier.max) / 100000).toFixed(2);
-
-    setEstimate({ min: minLakhs, max: maxLakhs });
+    const band = estimateLakhsBand(Number(sqft), tiers[tier], scope);
+    setEstimate(band);
     setEmailStatus("idle");
     setEmailError(null);
   };
@@ -41,13 +43,17 @@ export default function PricingToolSection({
     setEmailStatus("sending");
     setEmailError(null);
 
+    const scopeMeta = ESTIMATE_SCOPES[scope];
     const formData = new FormData();
     formData.set("intent", "estimate");
     formData.set("source", "pricing-estimate");
     formData.set("website_url", "");
     formData.set("email", email.trim());
     formData.set("sqft", String(sqft));
-    formData.set("budgetTier", tiers[tier].name);
+    formData.set(
+      "budgetTier",
+      `${tiers[tier].name} · ${scopeMeta.label}`,
+    );
     formData.set("estimateMin", estimate.min);
     formData.set("estimateMax", estimate.max);
 
@@ -67,6 +73,10 @@ export default function PricingToolSection({
         return;
       }
 
+      trackEstimateRun({
+        tier: `${tiers[tier]?.name} · ${scopeMeta.shortLabel}`,
+        sqft: sqft === "" ? undefined : sqft,
+      });
       setEmailStatus("sent");
       setEmail("");
     } catch (err) {
@@ -92,8 +102,8 @@ export default function PricingToolSection({
             Know your estimate before you commit.
           </h2>
           <p className="text-white/60 mb-8 text-base leading-relaxed">
-            Enter your carpet/built-up size and finish grade. We return a total
-            range in lakhs—the way homeowners actually decide.
+            Choose modular / room-wise or full-home, then size and finish grade.
+            We return a total range in lakhs—the way homeowners actually decide.
           </p>
 
           <ul className="space-y-4 text-sm text-white/75">
@@ -116,6 +126,35 @@ export default function PricingToolSection({
         <div className="bg-[#2A2A2A] p-8 border border-[#3A3A3A]">
           {!estimate ? (
             <form onSubmit={calculateEstimate} className="space-y-6">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
+                  Scope
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {SCOPE_ORDER.map((key) => {
+                    const meta = ESTIMATE_SCOPES[key];
+                    const selected = scope === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setScope(key)}
+                        className={`py-3 px-2 text-xs uppercase tracking-widest font-semibold border transition-all ${
+                          selected
+                            ? "bg-[var(--accent-gold-bright)] text-[var(--text-primary)] border-[var(--accent-gold-bright)]"
+                            : "bg-[var(--text-primary)] text-[var(--text-secondary)] border-[#3A3A3A] hover:border-[var(--text-secondary)]"
+                        }`}
+                      >
+                        {meta.shortLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-[11px] text-white/45 leading-relaxed">
+                  {ESTIMATE_SCOPES[scope].hint}
+                </p>
+              </div>
+
               <div>
                 <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
                   Total Square Footage
@@ -171,6 +210,9 @@ export default function PricingToolSection({
               <div className="text-4xl md:text-5xl font-serif text-[var(--background)] mb-2">
                 ₹{estimate.min} L — ₹{estimate.max} L
               </div>
+              <p className="text-[var(--text-secondary)] text-xs uppercase tracking-widest mb-2">
+                {ESTIMATE_SCOPES[scope].label}
+              </p>
               <p className="text-[var(--text-secondary)] text-xs uppercase tracking-widest mb-8">
                 Exclusive of 18% GST
               </p>

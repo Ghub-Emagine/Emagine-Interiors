@@ -49,8 +49,22 @@ export async function savePageImage(formData: FormData) {
   const imageFile = formData.get("image_file");
   if (imageFile instanceof File && imageFile.size > 0) {
     const isVideo = imageFile.type.startsWith("video/");
+    const isImage = imageFile.type.startsWith("image/");
+    if (!isVideo && !isImage) {
+      throw new Error("Upload must be an image or MP4/WebM video.");
+    }
+    const maxBytes = isVideo
+      ? 50 * 1024 * 1024
+      : 10 * 1024 * 1024;
+    if (imageFile.size > maxBytes) {
+      throw new Error(
+        isVideo
+          ? "Video must be 50MB or smaller."
+          : "Image must be 10MB or smaller.",
+      );
+    }
     if (isVideo) mediaType = "video";
-    else if (imageFile.type.startsWith("image/")) mediaType = "image";
+    else if (isImage) mediaType = "image";
 
     const ext =
       imageFile.name.split(".").pop() || (mediaType === "video" ? "mp4" : "jpg");

@@ -7,7 +7,15 @@ import {
   LEAD_STATUS_LABELS,
   leadWhatsAppHref,
 } from "@/lib/lead-helpers";
-import { updateLeadNotes, updateLeadStatus } from "./actions";
+import { updateLeadCrmDepth, updateLeadNotes, updateLeadStatus } from "./actions";
+
+function toDatetimeLocalValue(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 const STATUS_BADGE: Record<LeadStatus, string> = {
   new: "bg-amber-50 text-amber-900 border-amber-200",
@@ -109,6 +117,49 @@ export default function LeadRowActions({
           className="text-[10px] uppercase tracking-widest font-semibold text-[var(--accent-gold)] hover:underline disabled:opacity-60"
         >
           {pending ? "Saving…" : "Save notes"}
+        </button>
+      </form>
+
+      <form
+        action={(fd) => startTransition(() => updateLeadCrmDepth(fd))}
+        className="space-y-1"
+      >
+        <input type="hidden" name="id" value={lead.id} />
+        <label className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] font-semibold">
+          Proposal URL
+        </label>
+        <input
+          type="url"
+          name="proposal_url"
+          defaultValue={lead.proposal_url ?? ""}
+          placeholder="https://…"
+          className="w-full border border-[var(--border)] bg-white px-2 py-1.5 text-xs"
+        />
+        <label className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] font-semibold block pt-1">
+          Site visit
+        </label>
+        <input
+          type="datetime-local"
+          name="site_visit_at"
+          defaultValue={toDatetimeLocalValue(lead.site_visit_at)}
+          className="w-full border border-[var(--border)] bg-white px-2 py-1.5 text-xs"
+        />
+        {lead.proposal_url && (
+          <a
+            href={lead.proposal_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-[10px] text-[var(--accent-gold)] hover:underline truncate"
+          >
+            Open proposal
+          </a>
+        )}
+        <button
+          type="submit"
+          disabled={pending}
+          className="text-[10px] uppercase tracking-widest font-semibold text-[var(--accent-gold)] hover:underline disabled:opacity-60"
+        >
+          {pending ? "Saving…" : "Save CRM"}
         </button>
       </form>
     </div>

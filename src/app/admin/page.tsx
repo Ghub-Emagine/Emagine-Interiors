@@ -53,6 +53,30 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
   const { data, error } = await query;
   const leads = (data ?? []) as WebsiteLead[];
 
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const { data: healthRows } = await supabase
+    .from("website_leads")
+    .select("source, has_floor_plan")
+    .gte("created_at", sevenDaysAgo.toISOString());
+
+  const healthLeads = healthRows ?? [];
+  const healthCount = healthLeads.length;
+  const floorPlanCount = healthLeads.filter((l) => l.has_floor_plan).length;
+  const attachRate =
+    healthCount > 0 ? Math.round((floorPlanCount / healthCount) * 100) : 0;
+  const healthBySource = healthLeads.reduce<Record<string, number>>(
+    (acc, lead) => {
+      const key = lead.source || "unknown";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    },
+    {},
+  );
+  const topSources = Object.entries(healthBySource)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
   const byStatus = leads.reduce<Record<string, number>>((acc, lead) => {
     const key = lead.status || "new";
     acc[key] = (acc[key] || 0) + 1;
@@ -183,6 +207,52 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
           </Link>
         )}
       </form>
+
+      <div className="mb-6 border border-[var(--border)] bg-[var(--background)] p-5">
+        <p className="text-[10px] uppercase tracking-widest text-[var(--accent-gold)] mb-1 font-semibold">
+          Conversion health
+        </p>
+        <p className="text-xs text-[var(--text-secondary)] mb-4">
+          Last 7 days (unfiltered)
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] mb-1">
+              Leads
+            </p>
+            <p className="font-serif text-3xl">{healthCount}</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] mb-1">
+              Attach rate
+            </p>
+            <p className="font-serif text-3xl">{attachRate}%</p>
+            <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
+              {floorPlanCount}/{healthCount} with floor plan
+            </p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] mb-2">
+              Top sources
+            </p>
+            {topSources.length === 0 ? (
+              <p className="text-sm text-[var(--text-secondary)]">No leads yet</p>
+            ) : (
+              <ul className="space-y-1">
+                {topSources.map(([source, count]) => (
+                  <li
+                    key={source}
+                    className="flex items-baseline justify-between gap-3 text-sm border-b border-[var(--border)]/60 pb-1 last:border-0"
+                  >
+                    <span className="truncate">{source}</span>
+                    <span className="font-serif text-lg shrink-0">{count}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <div className="border border-[var(--border)] bg-[var(--background)] p-4">

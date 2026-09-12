@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { BRAND_INFO } from "@/lib/constants";
 import { trackContactClick } from "@/lib/track-conversion";
+import { studioWaHref } from "@/lib/whatsapp";
 
 export default function WhatsAppFloat({ whatsapp }: { whatsapp?: string }) {
   const pathname = usePathname();
@@ -18,7 +19,7 @@ export default function WhatsAppFloat({ whatsapp }: { whatsapp?: string }) {
         ? "Hi Emagine - I want to know why EDS is different for my flat."
         : "Hi Emagine - I'd like to talk about interiors for my Chennai flat.";
 
-  const href = `https://wa.me/${number}?text=${encodeURIComponent(prefill)}`;
+  const href = studioWaHref(number, prefill);
 
   return (
     <a

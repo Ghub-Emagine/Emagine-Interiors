@@ -67,6 +67,8 @@ export async function GET() {
     "Floor plan",
     "Notes",
     "Contacted",
+    "Proposal URL",
+    "Site visit",
     "Message",
     "Estimate min (L)",
     "Estimate max (L)",
@@ -95,6 +97,10 @@ export async function GET() {
       csvEscape(String(r.notes ?? "")),
       csvEscape(
         r.contacted_at ? formatDateIst(String(r.contacted_at)) : "",
+      ),
+      csvEscape(String(r.proposal_url ?? "")),
+      csvEscape(
+        r.site_visit_at ? formatDateIst(String(r.site_visit_at)) : "",
       ),
       csvEscape(String(r.message ?? "")),
       csvEscape(String(r.estimate_min ?? "")),

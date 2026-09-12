@@ -63,3 +63,38 @@ export async function updateLeadNotes(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
 }
+
+export async function updateLeadCrmDepth(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("Missing lead id");
+
+  const proposalRaw = String(formData.get("proposal_url") ?? "").trim();
+  const visitRaw = String(formData.get("site_visit_at") ?? "").trim();
+
+  let site_visit_at: string | null = null;
+  if (visitRaw) {
+    const parsed = new Date(visitRaw);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new Error("Invalid site visit date");
+    }
+    site_visit_at = parsed.toISOString();
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from("website_leads")
+    .update({
+      proposal_url: proposalRaw || null,
+      site_visit_at,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}

@@ -53,7 +53,8 @@ export default function PageImageForm({ image }: { image: PageImage }) {
       <div className="border border-[var(--accent-gold-bright)]/40 bg-[var(--surface)] p-5 space-y-4">
         <p className="text-sm text-[var(--text-secondary)]">
           Upload a Chennai project photo or short MP4/WebM (muted loop), or paste
-          a URL. Homepage hero videos also live under Admin → Hero.
+          a URL. Homepage hero videos also live under Admin → Hero. Max size:
+          images 10MB, videos 50MB.
         </p>
         <div>
           <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">

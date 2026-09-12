@@ -22,18 +22,21 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=   # optional if website_leads anon INSERT policy exists
 RESEND_API_KEY=
+CRON_SECRET=                 # Vercel cron Bearer token for daily lead digest (not in DB)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=   # optional fallback; prefer Admin → Settings
 NEXT_PUBLIC_META_PIXEL_ID=       # optional fallback; prefer Admin → Settings
 ```
 
 If `SUPABASE_SERVICE_ROLE_KEY` is empty, lead forms still work via the anon key + RLS insert policy.
 
+**Wave 0 — shared contracts:** Set `CRON_SECRET` in Vercel (and local `.env` for manual curl). Digest auth is `Authorization: Bearer ${CRON_SECRET}` — do **not** put the secret in `site_settings`. Toggle the digest on/off in Admin → **Settings** → Daily lead digest email (`lead_digest_enabled`). Builder query allowlist lives in `src/lib/builders.ts` (`normalizeBuilder`).
+
 ## What you can manage (no code)
 
 | Section | Path |
 |---------|------|
 | Leads inbox + **CSV export** | `/admin` |
-| **Site settings** (WhatsApp, emails, analytics, webhook, API key) | `/admin/settings` |
+| **Site settings** (WhatsApp, emails, analytics, webhook, API key, digest toggle) | `/admin/settings` |
 | Hero slideshow (image/video) | `/admin/hero` |
 | Portfolio projects | `/admin/projects` |
 | Room designs | `/admin/room-designs` |
@@ -52,6 +55,7 @@ If `SUPABASE_SERVICE_ROLE_KEY` is empty, lead forms still work via the anon key 
 5. Paste **GA4** (`G-…`) and **Meta Pixel** IDs when ready
 6. Optional **Lead webhook URL** for Zapier/Make → WhatsApp/CRM
 7. Set a long random **Leads API key** for CRM pull (`GET /api/leads` with header `x-api-key`)
+8. Optional: enable **Daily lead digest email** (needs `CRON_SECRET` in Vercel; see Wave 1 cron below)
 
 ### Getting leads in your real Gmail inbox
 
@@ -150,7 +154,7 @@ If the live site shows only photos, no video slide is published yet.
 Admin → **Page images** covers About, Why Emagine, layout-review, and homepage bands (process, services, FAQ, closing).
 
 1. Open a slot → set **Media type** to Image or Video
-2. Upload image or short muted MP4/WebM (or paste URL)
+2. Upload image (**max 10MB**) or short muted MP4/WebM (**max 50MB**) (or paste URL)
 3. Save — public pages render `<video>` when type is video
 
 Prefer short looping clips for backgrounds. Default remains image.
@@ -173,7 +177,23 @@ Admin → **Page copy** → Sync slots, then edit **About** and **Why Emagine** 
 
 Three-step wizard (Contact → Project → Floor plan). Floor plan is **not required** in HTML; public copy does not say “optional.” Name, WhatsApp, developer/location, and budget are required. Successful submit fires GA `generate_lead` + Meta `Lead` when those IDs are set in Settings.
 
-Contact API includes a honeypot (`website_url`) and an in-memory rate limit (5 posts / 10 min / IP per server instance).
+Contact API includes a honeypot (`website_url`) and an in-memory rate limit (5 posts / 10 min / IP per server instance). Floor-plan uploads are limited to **images or PDF**, max **10MB** (client + server).
+
+### Analytics events (GA4 / Meta when IDs are set)
+
+| Event | When |
+|-------|------|
+| `generate_lead` / Meta `Lead` | Layout form success |
+| `form_start` / Meta `FormStart` | Wizard step 1 mount / first interaction |
+| `estimate_run` / Meta `EstimateRun` | Pricing tool estimate email sent |
+| `video_play` / Meta `VideoPlay` | Slot media video play |
+| `view_item` / Meta `ViewContent` | Portfolio project detail |
+
+### Staging / preview + backups (ops)
+
+- **Vercel Preview:** Each PR gets a preview URL. Use it to smoke-test forms, admin, and CMS before promoting Production. Point ads only at Production.
+- **Supabase backups:** In the Supabase Dashboard → **Project Settings → Database**, enable **Point-in-Time Recovery (PITR)** on paid plans for continuous restore. On free/pro without PITR, use scheduled **logical backups** / dashboard backups and keep a recent download before schema changes. Storage (`portfolio-images`) is separate — re-upload critical assets if a bucket is wiped.
+- There is **no** in-app admin activity audit log.
 
 ### After Cursor — ops checklist (Phase 0 deferred)
 
@@ -190,6 +210,23 @@ Do these outside coding sessions; they unlock most of the ROI:
 
 Use `/layout-review?utm_source=instagram&utm_medium=social&utm_campaign=layout_review` in ads and bio links. GA/Meta (when IDs are set) track page views automatically.
 
+**Wave 1 — thank-you, builder ads, lead digest**
+
+- **Thank-you URL (ads conversion):** `/layout-review/thanks` — post-submit destination from the layout-review wizard (not the home form). Point Meta/Google conversion pixels or “thank you page” rules here.
+- **Builder query (personalized H1):** allowlisted slugs in `src/lib/builders.ts` (`normalizeBuilder`). Examples:
+  - `/layout-review?builder=casagrand`
+  - `/layout-review?builder=appaswamy`
+  - `/layout-review?builder=akshaya`
+  - `/layout-review?builder=spr-city` (also `sprcity`, `spr`)
+  - Unknown `builder=` values fall back to the default headline.
+  - Combine with UTMs as needed, e.g. `/layout-review?builder=casagrand&utm_source=instagram&utm_campaign=layout_review`
+- **Daily lead digest cron:**
+  - Route: `GET /api/cron/lead-digest`
+  - Schedule: `vercel.json` → `0 3 * * *` (03:00 UTC ≈ 08:30 IST)
+  - Auth: `Authorization: Bearer ${CRON_SECRET}` (env only; 401 if missing/wrong)
+  - Enable in Admin → **Settings** → Daily lead digest email (`lead_digest_enabled`); when off, cron returns skip (200)
+  - Manual smoke: `curl -H "Authorization: Bearer $CRON_SECRET" https://YOUR_DOMAIN/api/cron/lead-digest`
+
 ### Publishing a project (images)
 
 1. **Projects** → **New project**
@@ -198,6 +235,17 @@ Use `/layout-review?utm_source=instagram&utm_medium=social&utm_campaign=layout_r
 ### Publishing room designs / blog / testimonials
 
 Same as before — only **published** items appear on the public site.
+
+### Public guides (static)
+
+Chennai interior guides live at `/guides` (pillar pages under `src/app/guides/`). Not CMS-managed; linked from the site footer.
+
+### Growth pages (static)
+
+- **Referral:** `/referral` — share/refer CTA (UTM `utm_source=referral`); linked from the footer
+- **Partners:** `/partners` — broker/builder channel pitch (UTM `utm_campaign=partner`); linked from the footer
+
+Neither is CMS-managed.
 
 ## Brand assets
 
