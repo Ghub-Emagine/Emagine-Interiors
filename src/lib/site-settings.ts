@@ -16,6 +16,10 @@ export type SiteSettings = {
   lead_api_key: string;
   /** Daily lead digest cron — "true" | "false" (string). Auth uses env CRON_SECRET, not a DB key. */
   lead_digest_enabled: string;
+  /** Homepage trust marquee after hero — "true" | "false". */
+  trust_marquee_enabled: string;
+  /** Homepage promise strip after marquee — "true" | "false". */
+  promise_strip_enabled: string;
 };
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
@@ -31,7 +35,16 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   lead_webhook_url: "",
   lead_api_key: "",
   lead_digest_enabled: "false",
+  trust_marquee_enabled: "true",
+  promise_strip_enabled: "true",
 };
+
+/** Checkbox settings stored as "true" / "false" strings. */
+export const SITE_SETTING_TOGGLES: (keyof SiteSettings)[] = [
+  "lead_digest_enabled",
+  "trust_marquee_enabled",
+  "promise_strip_enabled",
+];
 
 export const SITE_SETTING_KEYS = Object.keys(
   DEFAULT_SITE_SETTINGS,

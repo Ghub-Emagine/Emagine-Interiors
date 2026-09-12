@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   DEFAULT_SITE_SETTINGS,
   SITE_SETTING_KEYS,
+  SITE_SETTING_TOGGLES,
   type SiteSettings,
 } from "@/lib/site-settings";
 
@@ -13,7 +14,7 @@ export async function saveSiteSettings(formData: FormData) {
   const now = new Date().toISOString();
   const rows = SITE_SETTING_KEYS.map((key) => {
     // Checkbox: absent when unchecked → store "false"
-    if (key === "lead_digest_enabled") {
+    if (SITE_SETTING_TOGGLES.includes(key)) {
       const raw = formData.get(key);
       return {
         key,

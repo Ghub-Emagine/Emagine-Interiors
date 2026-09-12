@@ -74,6 +74,8 @@ export default async function AdminSettingsPage() {
   ];
 
   const digestEnabled = settings.lead_digest_enabled === "true";
+  const marqueeEnabled = settings.trust_marquee_enabled === "true";
+  const promiseEnabled = settings.promise_strip_enabled === "true";
 
   return (
     <div>
@@ -83,13 +85,55 @@ export default async function AdminSettingsPage() {
         </p>
         <h1 className="font-serif text-4xl mb-2">Site settings</h1>
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-          Contact details, lead notifications, analytics IDs, and CRM webhook —
-          change these without touching code. Keys already in the database:{" "}
-          {SITE_SETTING_KEYS.length}.
+          Contact details, homepage section toggles, lead notifications,
+          analytics IDs, and CRM webhook — change these without touching code.
+          Keys already in the database: {SITE_SETTING_KEYS.length}.
         </p>
       </div>
 
       <form action={saveSiteSettings} className="space-y-6 max-w-xl">
+        <div className="border border-[var(--border)] bg-white px-4 py-4 space-y-4">
+          <p className="text-xs uppercase tracking-widest text-[var(--text-secondary)] font-semibold">
+            Homepage sections
+          </p>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="trust_marquee_enabled"
+              value="true"
+              defaultChecked={marqueeEnabled}
+              className="mt-1 h-4 w-4 accent-[var(--accent-gold)]"
+            />
+            <span>
+              <span className="block text-sm text-[var(--text-primary)] font-medium">
+                Hero marquee
+              </span>
+              <span className="block text-xs text-[var(--text-secondary)] mt-0.5">
+                Scrolling strip right after the hero. Edit phrases under Content
+                → Hero marquee.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="promise_strip_enabled"
+              value="true"
+              defaultChecked={promiseEnabled}
+              className="mt-1 h-4 w-4 accent-[var(--accent-gold)]"
+            />
+            <span>
+              <span className="block text-sm text-[var(--text-primary)] font-medium">
+                Promise strip
+              </span>
+              <span className="block text-xs text-[var(--text-secondary)] mt-0.5">
+                Four-column trust grid after the marquee. Edit copy under Content
+                → Promise strip.
+              </span>
+            </span>
+          </label>
+        </div>
+
         {fields.map((field) => (
           <div key={field.key}>
             <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
@@ -136,8 +180,7 @@ export default async function AdminSettingsPage() {
               </span>
               <span className="mt-1.5 block text-xs text-[var(--text-secondary)]">
                 Requires <code className="text-xs">CRON_SECRET</code> in Vercel
-                env — never store the secret here. Cron route ships in a later
-                wave; this toggle only enables/disables sending once that exists.
+                env — never store the secret here.
               </span>
             </span>
           </label>

@@ -1,9 +1,12 @@
 "use client";
 
-import { TRUST_MARQUEE } from "@/lib/constants";
+import type { SiteContentItem } from "@/lib/types";
 
-export default function TrustMarquee() {
-  const row = [...TRUST_MARQUEE, ...TRUST_MARQUEE];
+export default function TrustMarquee({ items }: { items: SiteContentItem[] }) {
+  const phrases = items.map((item) => item.title).filter(Boolean);
+  if (phrases.length === 0) return null;
+
+  const row = [...phrases, ...phrases];
 
   return (
     <section
@@ -17,10 +20,7 @@ export default function TrustMarquee() {
             className="inline-flex items-center gap-10 text-xs uppercase tracking-[0.22em] font-semibold text-white/85"
           >
             {item}
-            <span
-              className="text-[var(--accent-gold-bright)]"
-              aria-hidden
-            >
+            <span className="text-[var(--accent-gold-bright)]" aria-hidden>
               ·
             </span>
           </span>

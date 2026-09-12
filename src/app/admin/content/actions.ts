@@ -7,6 +7,7 @@ import type { SiteContentSection } from "@/lib/types";
 
 const SECTIONS: SiteContentSection[] = [
   "promise",
+  "marquee",
   "faq",
   "solution",
   "pricing",

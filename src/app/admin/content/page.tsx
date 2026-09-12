@@ -5,6 +5,7 @@ import { deleteContentItem, setContentStatus } from "./actions";
 
 const TABS: { id: SiteContentSection; label: string }[] = [
   { id: "promise", label: "Promise strip" },
+  { id: "marquee", label: "Hero marquee" },
   { id: "faq", label: "FAQ" },
   { id: "solution", label: "A–Z solutions" },
   { id: "pricing", label: "Pricing bands" },
@@ -37,8 +38,13 @@ export default async function AdminContentPage({ searchParams }: Props) {
           </p>
           <h1 className="font-serif text-4xl mb-2">Content</h1>
           <p className="text-sm text-[var(--text-secondary)] max-w-lg">
-            Edit promise strip, FAQ, A–Z solutions, ₹/sqft bands, and offerings
-            (including images)—no code deploy.
+            Edit promise strip, hero marquee phrases, FAQ, A–Z solutions, ₹/sqft
+            bands, and offerings (including images)—no code deploy. Turn sections
+            on/off under{" "}
+            <Link href="/admin/settings" className="underline underline-offset-2">
+              Site settings
+            </Link>
+            .
           </p>
         </div>
         <Link

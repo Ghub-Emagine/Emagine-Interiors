@@ -36,11 +36,11 @@ If `SUPABASE_SERVICE_ROLE_KEY` is empty, lead forms still work via the anon key 
 | Section | Path |
 |---------|------|
 | Leads inbox + **CSV export** | `/admin` |
-| **Site settings** (WhatsApp, emails, analytics, webhook, API key, digest toggle) | `/admin/settings` |
+| **Site settings** (WhatsApp, emails, analytics, webhook, API key, digest + homepage section toggles) | `/admin/settings` |
 | Hero slideshow (image/video) | `/admin/hero` |
 | Portfolio projects | `/admin/projects` |
 | Room designs | `/admin/room-designs` |
-| Content (promise, FAQ, A–Z, pricing, offerings) | `/admin/content` |
+| Content (promise, hero marquee, FAQ, A–Z, pricing, offerings) | `/admin/content` |
 | Page images (About / Why / layout-review / home bands) | `/admin/page-images` |
 | **Page copy** (hero, process, services, materials, form, closing) | `/admin/page-copy` |
 | Blog posts | `/admin/blogs` |

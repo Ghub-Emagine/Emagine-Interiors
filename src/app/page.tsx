@@ -1,5 +1,5 @@
 import HeroSectionLoader from "@/components/sections/HeroSectionLoader";
-import TrustMarquee from "@/components/sections/TrustMarquee";
+import TrustMarqueeLoader from "@/components/sections/TrustMarqueeLoader";
 import PromiseStripLoader from "@/components/sections/PromiseStripLoader";
 import PortfolioSection from "@/components/sections/PortfolioSection";
 import RoomDesignsSectionLoader from "@/components/sections/RoomDesignsSectionLoader";
@@ -22,12 +22,14 @@ export default async function Home() {
     getSiteSettings(),
   ]);
   const brand = brandFromSettings(settings);
+  const showMarquee = settings.trust_marquee_enabled === "true";
+  const showPromise = settings.promise_strip_enabled === "true";
 
   return (
     <>
       <HeroSectionLoader />
-      <TrustMarquee />
-      <PromiseStripLoader />
+      {showMarquee ? <TrustMarqueeLoader /> : null}
+      {showPromise ? <PromiseStripLoader /> : null}
       <PortfolioSection />
       <RoomDesignsSectionLoader />
       <ServicesSection images={images} copy={copy} />

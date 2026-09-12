@@ -32,7 +32,12 @@ export default function ContentItemForm({
 
       <div>
         <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
-          {section === "faq" ? "Question" : "Title"} *
+          {section === "faq"
+            ? "Question"
+            : section === "marquee"
+              ? "Marquee phrase"
+              : "Title"}{" "}
+          *
         </label>
         <input
           name="title"
@@ -42,17 +47,20 @@ export default function ContentItemForm({
         />
       </div>
 
-      <div>
-        <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
-          {section === "faq" ? "Answer" : "Detail"}
-        </label>
-        <textarea
-          name="detail"
-          rows={section === "faq" ? 5 : 3}
-          defaultValue={item?.detail ?? ""}
-          className="w-full border border-[var(--border)] bg-white px-4 py-3 text-sm"
-        />
-      </div>
+      {section !== "marquee" && (
+        <div>
+          <label className="block text-xs uppercase tracking-widest text-[var(--text-secondary)] mb-2 font-semibold">
+            {section === "faq" ? "Answer" : "Detail"}
+          </label>
+          <textarea
+            name="detail"
+            rows={section === "faq" ? 5 : 3}
+            defaultValue={item?.detail ?? ""}
+            className="w-full border border-[var(--border)] bg-white px-4 py-3 text-sm"
+          />
+        </div>
+      )}
+      {section === "marquee" && <input type="hidden" name="detail" value="" />}
 
       {section === "solution" && (
         <div>

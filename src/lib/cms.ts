@@ -15,6 +15,7 @@ import {
   PRICING_TIERS,
   ROOM_DESIGN_GALLERIES,
   STUDIO_OFFERINGS,
+  TRUST_MARQUEE,
 } from "@/lib/constants";
 import { SITE_IMAGES } from "@/lib/site-images";
 import { defaultPageMediaMap, type PageMedia } from "@/lib/page-image-slots";
@@ -334,6 +335,17 @@ function fallbackItems(section: SiteContentSection): SiteContentItem[] {
       section,
       title: p.title,
       detail: p.detail,
+      meta: {},
+      sort_order: i,
+      ...stamp,
+    }));
+  }
+  if (section === "marquee") {
+    return TRUST_MARQUEE.map((title, i) => ({
+      id: `fb-marquee-${i}`,
+      section,
+      title,
+      detail: null,
       meta: {},
       sort_order: i,
       ...stamp,

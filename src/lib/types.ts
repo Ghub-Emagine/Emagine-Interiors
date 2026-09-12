@@ -104,6 +104,7 @@ export type HeroSlide = {
 
 export type SiteContentSection =
   | "promise"
+  | "marquee"
   | "faq"
   | "solution"
   | "pricing"
