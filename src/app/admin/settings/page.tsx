@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import {
   DEFAULT_SITE_SETTINGS,
+  HOMEPAGE_SECTION_TOGGLES,
   SITE_SETTING_KEYS,
   type SiteSettings,
 } from "@/lib/site-settings";
@@ -8,17 +9,15 @@ import { ensureDefaultSettings, saveSiteSettings } from "./actions";
 
 export default async function AdminSettingsPage() {
   const supabase = await createClient();
-  let { data } = await supabase.from("site_settings").select("key, value");
 
-  if (!data || data.length === 0) {
-    try {
-      await ensureDefaultSettings();
-      const again = await supabase.from("site_settings").select("key, value");
-      data = again.data;
-    } catch {
-      /* empty */
-    }
+  // Seed any newly added keys (ignoreDuplicates) so toggles appear without a migrate.
+  try {
+    await ensureDefaultSettings();
+  } catch {
+    /* empty */
   }
+
+  const { data } = await supabase.from("site_settings").select("key, value");
 
   const settings: SiteSettings = { ...DEFAULT_SITE_SETTINGS };
   for (const row of data ?? []) {
@@ -74,8 +73,6 @@ export default async function AdminSettingsPage() {
   ];
 
   const digestEnabled = settings.lead_digest_enabled === "true";
-  const marqueeEnabled = settings.trust_marquee_enabled === "true";
-  const promiseEnabled = settings.promise_strip_enabled === "true";
 
   return (
     <div>
@@ -92,46 +89,38 @@ export default async function AdminSettingsPage() {
       </div>
 
       <form action={saveSiteSettings} className="space-y-6 max-w-xl">
-        <div className="border border-[var(--border)] bg-white px-4 py-4 space-y-4">
-          <p className="text-xs uppercase tracking-widest text-[var(--text-secondary)] font-semibold">
-            Homepage sections
-          </p>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              name="trust_marquee_enabled"
-              value="true"
-              defaultChecked={marqueeEnabled}
-              className="mt-1 h-4 w-4 accent-[var(--accent-gold)]"
-            />
-            <span>
-              <span className="block text-sm text-[var(--text-primary)] font-medium">
-                Hero marquee
+        <div className="border border-[var(--border)] bg-white px-4 py-4 space-y-3">
+          <div className="mb-1">
+            <p className="text-xs uppercase tracking-widest text-[var(--text-secondary)] font-semibold">
+              Homepage sections
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
+              Turn sections on or off. Order matches the live homepage. Content
+              for each section is still edited in its own admin area.
+            </p>
+          </div>
+          {HOMEPAGE_SECTION_TOGGLES.map((section) => (
+            <label
+              key={section.key}
+              className="flex items-start gap-3 cursor-pointer border-t border-[var(--border)] pt-3 first:border-t-0 first:pt-0"
+            >
+              <input
+                type="checkbox"
+                name={section.key}
+                value="true"
+                defaultChecked={settings[section.key] === "true"}
+                className="mt-1 h-4 w-4 accent-[var(--accent-gold)]"
+              />
+              <span>
+                <span className="block text-sm text-[var(--text-primary)] font-medium">
+                  {section.label}
+                </span>
+                <span className="block text-xs text-[var(--text-secondary)] mt-0.5">
+                  {section.help}
+                </span>
               </span>
-              <span className="block text-xs text-[var(--text-secondary)] mt-0.5">
-                Scrolling strip right after the hero. Edit phrases under Content
-                → Hero marquee.
-              </span>
-            </span>
-          </label>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              name="promise_strip_enabled"
-              value="true"
-              defaultChecked={promiseEnabled}
-              className="mt-1 h-4 w-4 accent-[var(--accent-gold)]"
-            />
-            <span>
-              <span className="block text-sm text-[var(--text-primary)] font-medium">
-                Promise strip
-              </span>
-              <span className="block text-xs text-[var(--text-secondary)] mt-0.5">
-                Four-column trust grid after the marquee. Edit copy under Content
-                → Promise strip.
-              </span>
-            </span>
-          </label>
+            </label>
+          ))}
         </div>
 
         {fields.map((field) => (
@@ -192,10 +181,16 @@ export default async function AdminSettingsPage() {
           </p>
           <ol className="list-decimal pl-5 space-y-1">
             <li>Confirm notify emails above (default is your Gmail).</li>
-            <li>Check Spam / Promotions — Resend&apos;s free from-address is often filtered.</li>
+            <li>
+              Check Spam / Promotions — Resend&apos;s free from-address is often
+              filtered.
+            </li>
             <li>
               In Resend, verify your domain, then set From to something like{" "}
-              <code className="text-xs">Emagine &lt;hello@yourdomain.com&gt;</code>.
+              <code className="text-xs">
+                Emagine &lt;hello@yourdomain.com&gt;
+              </code>
+              .
             </li>
             <li>Star those emails in Gmail for phone push notifications.</li>
             <li>

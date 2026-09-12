@@ -13,7 +13,11 @@ import FaqSectionLoader from "@/components/sections/FaqSectionLoader";
 import EvaluationFormSection from "@/components/sections/EvaluationFormSection";
 import ClosingCtaSection from "@/components/sections/ClosingCtaSection";
 import { getPageImageMap, getPageCopyMap } from "@/lib/cms";
-import { getSiteSettings, brandFromSettings } from "@/lib/site-settings";
+import {
+  brandFromSettings,
+  getSiteSettings,
+  isSectionEnabled,
+} from "@/lib/site-settings";
 
 export default async function Home() {
   const [images, copy, settings] = await Promise.all([
@@ -22,29 +26,35 @@ export default async function Home() {
     getSiteSettings(),
   ]);
   const brand = brandFromSettings(settings);
-  const showMarquee = settings.trust_marquee_enabled === "true";
-  const showPromise = settings.promise_strip_enabled === "true";
+  const on = (key: Parameters<typeof isSectionEnabled>[1]) =>
+    isSectionEnabled(settings, key);
 
   return (
     <>
-      <HeroSectionLoader />
-      {showMarquee ? <TrustMarqueeLoader /> : null}
-      {showPromise ? <PromiseStripLoader /> : null}
-      <PortfolioSection />
-      <RoomDesignsSectionLoader />
-      <ServicesSection images={images} copy={copy} />
-      <SolutionsCatalogSectionLoader />
-      <ProcessProofSection images={images} copy={copy} />
-      <MaterialSection copy={copy} />
-      <TestimonialsSection />
-      <PricingToolSectionLoader />
-      <FaqSectionLoader />
-      <EvaluationFormSection
-        whatsapp={brand.contact.whatsapp}
-        copy={copy}
-        images={images}
-      />
-      <ClosingCtaSection />
+      {on("hero_enabled") ? <HeroSectionLoader /> : null}
+      {on("trust_marquee_enabled") ? <TrustMarqueeLoader /> : null}
+      {on("promise_strip_enabled") ? <PromiseStripLoader /> : null}
+      {on("portfolio_enabled") ? <PortfolioSection /> : null}
+      {on("room_designs_enabled") ? <RoomDesignsSectionLoader /> : null}
+      {on("services_enabled") ? (
+        <ServicesSection images={images} copy={copy} />
+      ) : null}
+      {on("solutions_enabled") ? <SolutionsCatalogSectionLoader /> : null}
+      {on("process_enabled") ? (
+        <ProcessProofSection images={images} copy={copy} />
+      ) : null}
+      {on("material_enabled") ? <MaterialSection copy={copy} /> : null}
+      {on("testimonials_enabled") ? <TestimonialsSection /> : null}
+      {on("pricing_enabled") ? <PricingToolSectionLoader /> : null}
+      {on("faq_enabled") ? <FaqSectionLoader /> : null}
+      {on("evaluation_enabled") ? (
+        <EvaluationFormSection
+          whatsapp={brand.contact.whatsapp}
+          copy={copy}
+          images={images}
+        />
+      ) : null}
+      {on("closing_cta_enabled") ? <ClosingCtaSection /> : null}
     </>
   );
 }
