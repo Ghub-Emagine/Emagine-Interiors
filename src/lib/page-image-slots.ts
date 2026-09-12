@@ -205,6 +205,23 @@ export const PAGE_IMAGE_SLOTS: PageImageSlotDef[] = [
   },
 ];
 
+export type PageMedia = {
+  url: string;
+  media_type: "image" | "video";
+};
+
+export function defaultPageMediaMap(): Record<string, PageMedia> {
+  const map: Record<string, PageMedia> = {};
+  for (const slot of PAGE_IMAGE_SLOTS) {
+    map[slot.key] = {
+      url: SITE_IMAGES[slot.fallback],
+      media_type: "image",
+    };
+  }
+  return map;
+}
+
+/** @deprecated prefer pageMedia — returns URL only */
 export function defaultPageImageMap(): Record<string, string> {
   const map: Record<string, string> = {};
   for (const slot of PAGE_IMAGE_SLOTS) {
@@ -213,9 +230,27 @@ export function defaultPageImageMap(): Record<string, string> {
   return map;
 }
 
+export function pageMedia(
+  map: Record<string, PageMedia>,
+  key: string,
+): PageMedia {
+  return (
+    map[key] ??
+    defaultPageMediaMap()[key] ?? {
+      url: SITE_IMAGES.apartmentWarm,
+      media_type: "image",
+    }
+  );
+}
+
 export function pageImage(
-  map: Record<string, string>,
+  map: Record<string, string> | Record<string, PageMedia>,
   key: string,
 ): string {
-  return map[key] ?? defaultPageImageMap()[key] ?? SITE_IMAGES.apartmentWarm;
+  const entry = map[key];
+  if (!entry) {
+    return defaultPageImageMap()[key] ?? SITE_IMAGES.apartmentWarm;
+  }
+  if (typeof entry === "string") return entry;
+  return entry.url;
 }

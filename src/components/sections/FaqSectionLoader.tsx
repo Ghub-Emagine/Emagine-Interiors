@@ -1,5 +1,7 @@
 import { getPageImageMap, getSiteContent } from "@/lib/cms";
-import { pageImage } from "@/lib/page-image-slots";
+import { pageMedia } from "@/lib/page-image-slots";
+import { faqJsonLd } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 import FaqSection from "./FaqSection";
 
 export default async function FaqSectionLoader() {
@@ -8,6 +10,9 @@ export default async function FaqSectionLoader() {
     getPageImageMap(),
   ]);
   return (
-    <FaqSection items={items} sideImage={pageImage(images, "home_faq_side")} />
+    <>
+      <JsonLd data={faqJsonLd(items)} />
+      <FaqSection items={items} sideMedia={pageMedia(images, "home_faq_side")} />
+    </>
   );
 }

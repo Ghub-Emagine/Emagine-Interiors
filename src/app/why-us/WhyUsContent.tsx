@@ -4,8 +4,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { BRAND_INFO } from "@/lib/constants";
-import { pageImage } from "@/lib/page-image-slots";
+import { pageMedia, type PageMedia } from "@/lib/page-image-slots";
+import type { PageCopyItem } from "@/lib/page-copy-slots";
+import { copyField, copyMeta } from "@/lib/page-copy-slots";
 import BrandMark from "@/components/layout/BrandMark";
+import SlotMedia from "@/components/ui/SlotMedia";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -79,22 +82,106 @@ const objections = [
 
 export default function WhyUsContent({
   images,
+  copy,
 }: {
-  images: Record<string, string>;
+  images: Record<string, PageMedia>;
+  copy: Record<string, PageCopyItem>;
 }) {
-  const img = (key: string) => pageImage(images, key);
+  const media = (key: string) => pageMedia(images, key);
   const whatsappHref = `https://wa.me/${BRAND_INFO.contact.whatsapp}?text=${encodeURIComponent(
-    "Hi Emagine — I want to compare EDS with other interior options for my Chennai flat.",
+    "Hi Emagine - I want to compare EDS with other interior options for my Chennai flat.",
   )}`;
+
+  const heroTitle = copyField(
+    copy,
+    "why_hero",
+    "title",
+    "The safer way to start interiors for your new flat",
+  );
+  const heroBody = copyField(
+    copy,
+    "why_hero",
+    "body",
+    "Big showrooms sell the visit. Loose contractors sell flexibility. Emagine sells clarity—budget, layout, and materials—before you spend.",
+  );
+  const heroEyebrow = copyMeta(
+    copy,
+    "why_hero",
+    "eyebrow",
+    "Why Emagine · Chennai",
+  );
+  const heroCta = copyMeta(
+    copy,
+    "why_hero",
+    "cta_primary",
+    "Get a free layout review",
+  );
+  const heroWa = copyMeta(
+    copy,
+    "why_hero",
+    "cta_whatsapp",
+    "WhatsApp to compare",
+  );
+
+  const outcomesTitle = copyField(
+    copy,
+    "why_outcomes_intro",
+    "title",
+    "What changes when you start with Emagine",
+  );
+  const outcomesEyebrow = copyMeta(
+    copy,
+    "why_outcomes_intro",
+    "eyebrow",
+    "What you actually get",
+  );
+
+  const compareTitle = copyField(
+    copy,
+    "why_compare_intro",
+    "title",
+    "Showroom path vs Emagine path",
+  );
+  const compareBody = copyField(
+    copy,
+    "why_compare_intro",
+    "body",
+    "Use this when you are comparing options for a Chennai flat, before you sign anything.",
+  );
+  const compareEyebrow = copyMeta(
+    copy,
+    "why_compare_intro",
+    "eyebrow",
+    "Side by side",
+  );
+
+  const ctaTitle = copyField(
+    copy,
+    "why_cta",
+    "title",
+    "Compare us with your floor plan, not a brochure",
+  );
+  const ctaBody = copyField(
+    copy,
+    "why_cta",
+    "body",
+    "Send the plan. Get layout notes and a budget band. Then decide with numbers, not showroom pressure.",
+  );
+  const ctaPrimary = copyMeta(
+    copy,
+    "why_cta",
+    "cta_primary",
+    "Request free layout review",
+  );
 
   return (
     <div className="bg-[var(--background)] text-[var(--text-primary)] min-h-screen">
       <section className="relative min-h-[70vh] flex items-end overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={img("why_hero")}
+        <SlotMedia
+          url={media("why_hero").url}
+          mediaType={media("why_hero").media_type}
           alt="Chennai apartment interiors"
-          className="absolute inset-0 w-full h-full object-cover"
+          imgClassName="absolute inset-0 w-full h-full object-cover"
         />
         <div
           className="absolute inset-0 bg-gradient-to-t from-[var(--text-primary)]/85 via-[var(--text-primary)]/45 to-[var(--text-primary)]/20"
@@ -121,25 +208,23 @@ export default function WhyUsContent({
               variants={fadeUp}
               className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent-gold-bright)] font-semibold mb-4"
             >
-              Why Emagine · Chennai
+              {heroEyebrow}
             </motion.p>
             <motion.h1
               variants={fadeUp}
               className="font-serif text-3xl md:text-5xl text-[#FBFBFA] font-medium leading-tight mb-5"
             >
-              The safer way to start interiors for your new flat
+              {heroTitle}
             </motion.h1>
             <motion.p
               variants={fadeUp}
               className="text-[#FBFBFA]/80 text-base md:text-lg leading-relaxed mb-8 max-w-xl"
             >
-              Big showrooms sell the visit. Loose contractors sell flexibility.
-              Emagine sells clarity—budget, layout, and materials—before you
-              spend.
+              {heroBody}
             </motion.p>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3">
               <Link href="/#apply" className="btn-primary text-center">
-                Get a free layout review
+                {heroCta}
               </Link>
               <a
                 href={whatsappHref}
@@ -147,7 +232,7 @@ export default function WhyUsContent({
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center border border-white/40 text-white px-8 py-4 text-xs uppercase tracking-widest font-semibold hover:bg-white/10"
               >
-                WhatsApp to compare
+                {heroWa}
               </a>
             </motion.div>
           </motion.div>
@@ -158,10 +243,10 @@ export default function WhyUsContent({
       <section className="py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent-gold)] font-semibold mb-4">
-            What you actually get
+            {outcomesEyebrow}
           </p>
           <h2 className="font-serif text-3xl md:text-5xl tracking-tight max-w-2xl mb-12 leading-tight">
-            What changes when you start with Emagine
+            {outcomesTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {outcomes.map((item, i) => (
@@ -189,16 +274,16 @@ export default function WhyUsContent({
       {/* Visual proof strip */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-0">
         {[
-          { img: img("why_strip_kitchen"), label: "Modular kitchens" },
-          { img: img("why_strip_living"), label: "Living that fits the plan" },
-          { img: img("why_strip_bedroom"), label: "Wardrobes & bedrooms" },
+          { media: media("why_strip_kitchen"), label: "Modular kitchens" },
+          { media: media("why_strip_living"), label: "Living that fits the plan" },
+          { media: media("why_strip_bedroom"), label: "Wardrobes & bedrooms" },
         ].map((cell) => (
           <div key={cell.label} className="relative aspect-[4/3] md:aspect-auto md:min-h-[320px] overflow-hidden group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={cell.img}
+            <SlotMedia
+              url={cell.media.url}
+              mediaType={cell.media.media_type}
               alt={cell.label}
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-black/35" />
             <p className="absolute bottom-6 left-6 font-serif text-2xl text-white">
@@ -212,14 +297,13 @@ export default function WhyUsContent({
       <section className="py-20 md:py-28 bg-[var(--surface)]">
         <div className="max-w-5xl mx-auto px-6 md:px-12">
           <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent-gold)] font-semibold mb-4">
-            Side by side
+            {compareEyebrow}
           </p>
           <h2 className="font-serif text-3xl md:text-5xl tracking-tight mb-4 leading-tight">
-            Showroom path vs Emagine path
+            {compareTitle}
           </h2>
           <p className="text-[var(--text-secondary)] mb-10 max-w-xl leading-relaxed">
-            Use this when you are comparing options for a Chennai flat—before
-            you sign anything.
+            {compareBody}
           </p>
           <div className="overflow-x-auto border border-[var(--border)] bg-white">
             <table className="w-full text-left text-sm">
@@ -290,24 +374,20 @@ export default function WhyUsContent({
 
       {/* Strong close */}
       <section className="relative py-24 md:py-32 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={img("why_cta")}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+        <SlotMedia
+          url={media("why_cta").url}
+          mediaType={media("why_cta").media_type}
+          imgClassName="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-[var(--text-primary)]/80" />
         <div className="relative z-10 max-w-2xl mx-auto px-6 text-center text-white">
           <h2 className="font-serif text-3xl md:text-5xl tracking-tight mb-5 leading-tight">
-            Compare us with your floor plan—not a brochure
+            {ctaTitle}
           </h2>
-          <p className="text-white/70 mb-10 leading-relaxed">
-            Send the plan. Get layout notes and a budget band. Then decide with
-            numbers, not showroom pressure.
-          </p>
+          <p className="text-white/70 mb-10 leading-relaxed">{ctaBody}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/#apply" className="btn-primary">
-              Request free layout review
+              {ctaPrimary}
             </Link>
             <a
               href={whatsappHref}

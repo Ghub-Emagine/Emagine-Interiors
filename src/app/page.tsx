@@ -11,10 +11,16 @@ import PricingToolSectionLoader from "@/components/sections/PricingToolSectionLo
 import FaqSectionLoader from "@/components/sections/FaqSectionLoader";
 import EvaluationFormSection from "@/components/sections/EvaluationFormSection";
 import ClosingCtaSection from "@/components/sections/ClosingCtaSection";
-import { getPageImageMap } from "@/lib/cms";
+import { getPageImageMap, getPageCopyMap } from "@/lib/cms";
+import { getSiteSettings, brandFromSettings } from "@/lib/site-settings";
 
 export default async function Home() {
-  const images = await getPageImageMap();
+  const [images, copy, settings] = await Promise.all([
+    getPageImageMap(),
+    getPageCopyMap(),
+    getSiteSettings(),
+  ]);
+  const brand = brandFromSettings(settings);
 
   return (
     <>
@@ -22,14 +28,18 @@ export default async function Home() {
       <PromiseStripLoader />
       <PortfolioSection />
       <RoomDesignsSectionLoader />
-      <ServicesSection images={images} />
+      <ServicesSection images={images} copy={copy} />
       <SolutionsCatalogSectionLoader />
-      <ProcessProofSection images={images} />
-      <MaterialSection />
+      <ProcessProofSection images={images} copy={copy} />
+      <MaterialSection copy={copy} />
       <TestimonialsSection />
       <PricingToolSectionLoader />
       <FaqSectionLoader />
-      <EvaluationFormSection />
+      <EvaluationFormSection
+        whatsapp={brand.contact.whatsapp}
+        copy={copy}
+        images={images}
+      />
       <ClosingCtaSection />
     </>
   );

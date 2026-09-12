@@ -5,11 +5,13 @@ import BrandMark from "@/components/layout/BrandMark";
 
 const nav = [
   { href: "/admin", label: "Leads" },
+  { href: "/admin/settings", label: "Settings" },
   { href: "/admin/hero", label: "Hero" },
   { href: "/admin/projects", label: "Projects" },
   { href: "/admin/room-designs", label: "Room designs" },
   { href: "/admin/content", label: "Content" },
   { href: "/admin/page-images", label: "Page images" },
+  { href: "/admin/page-copy", label: "Page copy" },
   { href: "/admin/blogs", label: "Blog" },
   { href: "/admin/testimonials", label: "Testimonials" },
 ];

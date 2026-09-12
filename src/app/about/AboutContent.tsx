@@ -5,7 +5,10 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { BRAND_INFO } from "@/lib/constants";
 import BrandMark from "@/components/layout/BrandMark";
-import { pageImage } from "@/lib/page-image-slots";
+import { pageMedia, type PageMedia } from "@/lib/page-image-slots";
+import type { PageCopyItem } from "@/lib/page-copy-slots";
+import { copyField, copyMeta } from "@/lib/page-copy-slots";
+import SlotMedia from "@/components/ui/SlotMedia";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -16,12 +19,14 @@ const ease = [0.22, 1, 0.36, 1] as const;
  */
 export default function AboutContent({
   images,
+  copy,
 }: {
-  images: Record<string, string>;
+  images: Record<string, PageMedia>;
+  copy: Record<string, PageCopyItem>;
 }) {
-  const img = (key: string) => pageImage(images, key);
+  const media = (key: string) => pageMedia(images, key);
   const whatsappHref = `https://wa.me/${BRAND_INFO.contact.whatsapp}?text=${encodeURIComponent(
-    "Hi Emagine — I'd like to know more about the studio.",
+    "Hi Emagine - I'd like to know more about the studio.",
   )}`;
 
   const heroRef = useRef<HTMLElement>(null);
@@ -32,24 +37,136 @@ export default function AboutContent({
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.4]);
 
+  const heroTitle = copyField(
+    copy,
+    "about_hero",
+    "title",
+    "A studio for people who already bought the flat.",
+  );
+  const heroHighlight = copyMeta(
+    copy,
+    "about_hero",
+    "highlight",
+    "who already bought the flat.",
+  );
+  const heroBody = copyField(
+    copy,
+    "about_hero",
+    "body",
+    "Clear decisions before site drama, and interiors planned for the home you actually own in Chennai.",
+  );
+  const heroEyebrow = copyMeta(
+    copy,
+    "about_hero",
+    "eyebrow",
+    "Emagine Design Studio · Chennai",
+  );
+
+  const originTitle = copyField(
+    copy,
+    "about_origin",
+    "title",
+    "Why this studio exists",
+  );
+  const originBody = copyField(
+    copy,
+    "about_origin",
+    "body",
+    "Large players can feel rigid. Local contractors can feel flexible until materials and timelines slip. Emagine sits in the middle: careful detailing, named materials, and a habit of checking your floor plan before money leaves the account.",
+  );
+  const originEyebrow = copyMeta(copy, "about_origin", "eyebrow", "Origin");
+  const originQuote = copyMeta(
+    copy,
+    "about_origin",
+    "side_quote",
+    "Built in the gap between big brands and loose contractors.",
+  );
+
+  const chennaiTitle = copyField(
+    copy,
+    "about_chennai",
+    "title",
+    "Flats here come with a floor plan and a lot of opinions.",
+  );
+  const chennaiBody = copyField(
+    copy,
+    "about_chennai",
+    "body",
+    "Pre-possession apartments stack decisions fast. Emagine's bias is simple—score the plan first, then design what you can actually live with.",
+  );
+  const chennaiEyebrow = copyMeta(
+    copy,
+    "about_chennai",
+    "eyebrow",
+    "Chennai context",
+  );
+
+  const refusalsTitle = copyField(
+    copy,
+    "about_refusals_intro",
+    "title",
+    "What we refuse on purpose",
+  );
+  const refusalsBody = copyField(
+    copy,
+    "about_refusals_intro",
+    "body",
+    "These rules shape every brief we take.",
+  );
+  const refusalsEyebrow = copyMeta(
+    copy,
+    "about_refusals_intro",
+    "eyebrow",
+    "Lines we won't cross",
+  );
+
+  const ctaTitle = copyField(
+    copy,
+    "about_cta",
+    "title",
+    "Ready to plan your flat?",
+  );
+  const ctaBody = copyField(
+    copy,
+    "about_cta",
+    "body",
+    "Send your builder floor plan for a free review, or message us on WhatsApp to start.",
+  );
+  const ctaPrimary = copyMeta(
+    copy,
+    "about_cta",
+    "cta_primary",
+    "Get a free layout review",
+  );
+  const ctaWhatsapp = copyMeta(
+    copy,
+    "about_cta",
+    "cta_whatsapp",
+    "WhatsApp the studio",
+  );
+
+  const titleBeforeHighlight = heroTitle.includes(heroHighlight)
+    ? heroTitle.replace(heroHighlight, "").trim()
+    : heroTitle;
+
   const refusals = [
     {
-      title: "We don’t sell a showroom visit first",
+      title: "We don't sell a showroom visit first",
       detail:
-        "Your builder floor plan is the brief. Sample rooms that aren’t your flat don’t decide your budget.",
+        "Your builder floor plan is the brief. Sample rooms that aren't your flat don't decide your budget.",
     },
     {
-      title: "We don’t hide the ₹/sqft",
+      title: "We don't hide the ₹/sqft",
       detail:
-        "Bands are published before you commit. Design fees don’t arrive as a surprise percentage.",
+        "Bands are published before you commit. Design fees don't arrive as a surprise percentage.",
     },
     {
-      title: "We don’t hand you five contractors",
+      title: "We don't hand you five contractors",
       detail:
-        "Layout, modular, and site finish stay under one studio so you aren’t chasing strangers.",
+        "Layout, modular, and site finish stay under one studio so you aren't chasing strangers.",
     },
     {
-      title: "We don’t over-book the week",
+      title: "We don't over-book the week",
       detail:
         "Layout reviews are capped so we stay hands-on—fewer leads, clearer replies.",
     },
@@ -84,11 +201,10 @@ export default function AboutContent({
           className="absolute inset-0"
           style={{ scale: heroScale, opacity: heroOpacity }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={img("about_hero")}
-            alt=""
-            className="w-full h-full object-cover"
+          <SlotMedia
+            url={media("about_hero").url}
+            mediaType={media("about_hero").media_type}
+            imgClassName="w-full h-full object-cover"
           />
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-black/15" />
@@ -101,18 +217,16 @@ export default function AboutContent({
           >
             <BrandMark variant="onDark" size="hero" withStudio />
             <p className="mt-8 text-[10px] uppercase tracking-[0.35em] text-white/55 font-semibold">
-              Emagine Design Studio · Chennai
+              {heroEyebrow}
             </p>
             <h1 className="mt-4 font-serif text-4xl sm:text-5xl md:text-7xl text-white leading-[1.02] tracking-tight">
-              A studio for people
-              <br />
+              {titleBeforeHighlight}{" "}
               <span className="text-[var(--accent-gold-bright)]">
-                who already bought the flat.
+                {heroHighlight}
               </span>
             </h1>
             <p className="mt-6 text-base md:text-lg text-white/70 max-w-xl leading-relaxed">
-              Clear decisions before site drama—and interiors planned for the
-              home you actually own in Chennai.
+              {heroBody}
             </p>
           </motion.div>
         </div>
@@ -121,36 +235,27 @@ export default function AboutContent({
       <section className="relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[85vh]">
           <div className="lg:col-span-5 relative min-h-[45vh] lg:min-h-full lg:sticky lg:top-0 lg:h-screen">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={img("about_origin")}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
+            <SlotMedia
+              url={media("about_origin").url}
+              mediaType={media("about_origin").media_type}
+              imgClassName="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <p className="absolute bottom-10 left-8 right-8 font-serif text-3xl md:text-4xl text-white leading-tight">
-              Built in the gap between
-              <span className="text-[var(--accent-gold-bright)]"> big brands </span>
-              and
-              <span className="text-[var(--accent-gold-bright)]"> loose contractors</span>.
+              {originQuote}
             </p>
           </div>
 
           <div className="lg:col-span-7 flex items-center">
             <div className="px-8 md:px-14 lg:px-20 py-20 md:py-28 max-w-xl">
               <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent-gold)] font-semibold mb-5">
-                Origin
+                {originEyebrow}
               </p>
               <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-[1.1] mb-8">
-                Why this studio exists
+                {originTitle}
               </h2>
               <div className="space-y-5 text-[var(--text-secondary)] leading-relaxed">
-                <p>
-                  Large players can feel rigid. Local contractors can feel
-                  flexible—until materials and timelines slip. Emagine sits in
-                  the middle: careful detailing, named materials, and a habit of
-                  checking your floor plan before money leaves the account.
-                </p>
+                <p>{originBody}</p>
                 <p>
                   We are not chasing footfall through an experience centre. We
                   are helping fewer families moving into Casagrand, Appaswamy,
@@ -179,28 +284,23 @@ export default function AboutContent({
         <div className="max-w-6xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
           <div>
             <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent-gold-bright)] font-semibold mb-5">
-              Chennai context
+              {chennaiEyebrow}
             </p>
             <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-[1.08] mb-6">
-              Flats here come with a floor plan—and a lot of opinions.
+              {chennaiTitle}
             </h2>
-            <p className="text-white/65 leading-relaxed mb-6">
-              Pre-possession apartments stack decisions fast: wet areas that
-              don’t fit, wardrobe walls that steal light, budgets quoted as
-              “approx” until site day. Emagine’s bias is simple—score the plan
-              first, then design what you can actually live with.
-            </p>
+            <p className="text-white/65 leading-relaxed mb-6">{chennaiBody}</p>
             <p className="text-white/65 leading-relaxed">
               That is a different job from selling laminate options in a
-              walkthrough mall. It’s slower to start, clearer to finish.
+              walkthrough mall. It&apos;s slower to start, clearer to finish.
             </p>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={img("about_chennai")}
+            <SlotMedia
+              url={media("about_chennai").url}
+              mediaType={media("about_chennai").media_type}
               alt="Apartment living for Chennai flat owners"
-              className="absolute inset-0 w-full h-full object-cover"
+              imgClassName="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <p className="absolute bottom-6 left-6 right-6 text-sm text-white/80">
@@ -214,13 +314,13 @@ export default function AboutContent({
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="max-w-2xl mb-14">
             <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent-gold)] font-semibold mb-4">
-              Lines we won’t cross
+              {refusalsEyebrow}
             </p>
             <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-[1.08]">
-              What we refuse—on purpose
+              {refusalsTitle}
             </h2>
             <p className="mt-5 text-[var(--text-secondary)] leading-relaxed">
-              These rules shape every brief we take.
+              {refusalsBody}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -268,19 +368,17 @@ export default function AboutContent({
           </div>
           <div className="mt-14 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative aspect-[16/10] overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img("about_gallery_1")}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
+              <SlotMedia
+                url={media("about_gallery_1").url}
+                mediaType={media("about_gallery_1").media_type}
+                imgClassName="absolute inset-0 w-full h-full object-cover"
               />
             </div>
             <div className="relative aspect-[16/10] overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img("about_gallery_2")}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
+              <SlotMedia
+                url={media("about_gallery_2").url}
+                mediaType={media("about_gallery_2").media_type}
+                imgClassName="absolute inset-0 w-full h-full object-cover"
               />
             </div>
           </div>
@@ -288,20 +386,18 @@ export default function AboutContent({
       </section>
 
       <section className="relative py-28 md:py-36 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={img("about_cta")}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+        <SlotMedia
+          url={media("about_cta").url}
+          mediaType={media("about_cta").media_type}
+          imgClassName="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-[var(--text-primary)]/82" />
         <div className="relative z-10 max-w-3xl mx-auto px-6 text-center text-white">
           <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-[1.05] mb-5">
-            Ready to plan your flat?
+            {ctaTitle}
           </h2>
           <p className="text-white/65 leading-relaxed mb-3 max-w-lg mx-auto">
-            Send your builder floor plan for a free review—or message us on
-            WhatsApp to start.
+            {ctaBody}
           </p>
           <a
             href={`mailto:${BRAND_INFO.contact.email}`}
@@ -314,7 +410,7 @@ export default function AboutContent({
               href="/#apply"
               className="inline-flex items-center justify-center bg-[var(--accent-gold-bright)] text-[var(--text-primary)] px-8 py-4 text-xs uppercase tracking-widest font-semibold hover:bg-white transition-colors"
             >
-              Get a free layout review
+              {ctaPrimary}
             </Link>
             <a
               href={whatsappHref}
@@ -322,7 +418,7 @@ export default function AboutContent({
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center border border-white/40 px-8 py-4 text-xs uppercase tracking-widest font-semibold hover:bg-white/10 transition-colors"
             >
-              WhatsApp the studio
+              {ctaWhatsapp}
             </a>
           </div>
         </div>

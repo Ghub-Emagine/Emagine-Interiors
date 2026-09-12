@@ -38,9 +38,9 @@ export default async function AdminPageImagesPage() {
           </p>
           <h1 className="font-serif text-4xl mb-2">Page images</h1>
           <p className="text-sm text-[var(--text-secondary)] max-w-lg">
-            Swap photos on About, Why Emagine, Layout review, and homepage
-            bands—upload your Chennai project shots here. Homepage hero still
-            uses the Hero section.
+            Swap photos or short muted videos on About, Why Emagine, Layout
+            review, and homepage bands. Homepage hero slideshow (image/video)
+            still uses Admin → Hero.
           </p>
         </div>
         <form action={ensurePageImageSlots}>
@@ -65,22 +65,31 @@ export default async function AdminPageImagesPage() {
                   key={img.id}
                   className="border border-[var(--border)] bg-[var(--background)] overflow-hidden"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img.image_url}
-                    alt={img.alt_text ?? img.label}
-                    className="aspect-video w-full object-cover"
-                  />
+                  {img.media_type === "video" ? (
+                    <video
+                      src={img.image_url}
+                      className="aspect-video w-full object-cover bg-black"
+                      muted
+                      playsInline
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={img.image_url}
+                      alt={img.alt_text ?? img.label}
+                      className="aspect-video w-full object-cover"
+                    />
+                  )}
                   <div className="p-4">
                     <p className="font-serif text-lg mb-1">{img.label}</p>
                     <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] mb-3">
-                      {img.slot_key}
+                      {img.media_type ?? "image"} · {img.slot_key}
                     </p>
                     <Link
                       href={`/admin/page-images/${img.id}`}
                       className="text-xs uppercase tracking-widest text-[var(--accent-gold)] hover:underline"
                     >
-                      Change image
+                      Change media
                     </Link>
                   </div>
                 </div>

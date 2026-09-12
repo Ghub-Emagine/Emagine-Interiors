@@ -1,16 +1,23 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { BRAND_INFO } from "@/lib/constants";
 import BrandMark from "@/components/layout/BrandMark";
 import { getPageImageMap } from "@/lib/cms";
-import { pageImage } from "@/lib/page-image-slots";
+import { pageMedia } from "@/lib/page-image-slots";
+import { getSiteSettings, brandFromSettings } from "@/lib/site-settings";
+import SlotMedia from "@/components/ui/SlotMedia";
 import LayoutReviewForm from "./LayoutReviewForm";
 
-export const metadata = {
-  title: "Free Layout Review | Emagine Design Studio",
-  description:
-    "Free layout review for Chennai flats — modular & full-home interiors from your builder plan. Transparent ₹/sqft, same-day WhatsApp.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const brand = brandFromSettings(settings);
+  return {
+    title: `Free Layout Review | ${brand.name}`,
+    description:
+      "Free layout review for Chennai flats — modular & full-home interiors from your builder plan. Transparent ₹/sqft, same-day WhatsApp.",
+  };
+}
 
 const proofPoints = [
   "Casagrand, Appaswamy, Akshaya & premium sites across Chennai",
@@ -20,8 +27,12 @@ const proofPoints = [
 ];
 
 export default async function LayoutReviewPage() {
-  const images = await getPageImageMap();
-  const img = (key: string) => pageImage(images, key);
+  const [images, settings] = await Promise.all([
+    getPageImageMap(),
+    getSiteSettings(),
+  ]);
+  const brand = brandFromSettings(settings);
+  const media = (key: string) => pageMedia(images, key);
 
   const afterSteps = [
     {
@@ -29,31 +40,29 @@ export default async function LayoutReviewPage() {
       title: "We study your plan",
       detail:
         "Light, flow, and storage issues flagged against your builder layout.",
-      src: img("layout_step_1"),
+      media: media("layout_step_1"),
     },
     {
       n: "02",
       title: "Budget band on WhatsApp",
-      detail: "A realistic lakhs range—not a vague ‘visit the showroom’ reply.",
-      src: img("layout_step_2"),
+      detail: "A realistic lakhs range, not a vague visit-the-showroom reply.",
+      media: media("layout_step_2"),
     },
     {
       n: "03",
       title: "Design what you approved",
       detail: "Modular and full-home interiors approved in 3D before site work.",
-      src: img("layout_step_3"),
+      media: media("layout_step_3"),
     },
   ];
 
   return (
     <div className="bg-[var(--background)] text-[var(--text-primary)]">
       <div className="relative text-[#FBFBFA] min-h-[calc(100vh-5rem)]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={img("layout_hero")}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          aria-hidden
+        <SlotMedia
+          url={media("layout_hero").url}
+          mediaType={media("layout_hero").media_type}
+          imgClassName="absolute inset-0 w-full h-full object-cover"
         />
         <div
           className="absolute inset-0 bg-gradient-to-b from-[var(--text-primary)]/65 via-[var(--text-primary)]/78 to-[var(--text-primary)]/92"
@@ -90,7 +99,7 @@ export default async function LayoutReviewPage() {
                 Request your review
               </p>
               <p className="text-sm text-[var(--text-secondary)] mb-8">
-                Takes under 2 minutes. Floor plan optional but preferred.
+                Takes under 2 minutes. Upload your builder floor plan.
               </p>
               <Suspense
                 fallback={
@@ -99,7 +108,7 @@ export default async function LayoutReviewPage() {
                   </p>
                 }
               >
-                <LayoutReviewForm />
+                <LayoutReviewForm studioWhatsapp={brand.contact.whatsapp} />
               </Suspense>
             </div>
           </div>
@@ -124,11 +133,10 @@ export default async function LayoutReviewPage() {
                 key={step.n}
                 className="group relative overflow-hidden min-h-[280px] border border-[var(--border)]"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={step.src}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                <SlotMedia
+                  url={step.media.url}
+                  mediaType={step.media.media_type}
+                  imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/15" />
                 <div className="relative z-10 p-6 h-full flex flex-col justify-end text-white">

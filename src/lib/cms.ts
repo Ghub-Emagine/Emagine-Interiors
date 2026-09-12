@@ -17,7 +17,11 @@ import {
   STUDIO_OFFERINGS,
 } from "@/lib/constants";
 import { SITE_IMAGES } from "@/lib/site-images";
-import { defaultPageImageMap } from "@/lib/page-image-slots";
+import { defaultPageMediaMap, type PageMedia } from "@/lib/page-image-slots";
+import {
+  defaultPageCopyMap,
+  type PageCopyItem,
+} from "@/lib/page-copy-slots";
 
 function createPublicClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -416,14 +420,14 @@ export async function getSiteContent(
   }
 }
 
-/** Merged map of slot_key → image_url (DB overrides + code fallbacks) */
-export async function getPageImageMap(): Promise<Record<string, string>> {
-  const map = defaultPageImageMap();
+/** Merged map of slot_key → media (DB overrides + code fallbacks) */
+export async function getPageImageMap(): Promise<Record<string, PageMedia>> {
+  const map = defaultPageMediaMap();
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("page_images")
-      .select("slot_key, image_url");
+      .select("slot_key, image_url, media_type");
 
     if (error) {
       console.error("getPageImageMap:", error.message);
@@ -431,7 +435,11 @@ export async function getPageImageMap(): Promise<Record<string, string>> {
     }
     for (const row of data ?? []) {
       if (row.slot_key && row.image_url) {
-        map[row.slot_key] = row.image_url;
+        map[row.slot_key] = {
+          url: row.image_url,
+          media_type:
+            row.media_type === "video" ? "video" : "image",
+        };
       }
     }
     return map;
@@ -458,5 +466,33 @@ export async function getPageImagesAdmin(): Promise<PageImage[]> {
   } catch (err) {
     console.error("getPageImagesAdmin:", err);
     return [];
+  }
+}
+
+export async function getPageCopyMap(): Promise<Record<string, PageCopyItem>> {
+  const map = defaultPageCopyMap();
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("page_copy")
+      .select("slot_key, title, body, meta");
+
+    if (error) {
+      console.error("getPageCopyMap:", error.message);
+      return map;
+    }
+    for (const row of data ?? []) {
+      if (!row.slot_key) continue;
+      map[row.slot_key] = {
+        slot_key: row.slot_key,
+        title: row.title,
+        body: row.body,
+        meta: (row.meta as Record<string, unknown>) ?? {},
+      };
+    }
+    return map;
+  } catch (err) {
+    console.error("getPageCopyMap:", err);
+    return map;
   }
 }

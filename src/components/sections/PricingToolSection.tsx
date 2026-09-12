@@ -44,6 +44,7 @@ export default function PricingToolSection({
     const formData = new FormData();
     formData.set("intent", "estimate");
     formData.set("source", "pricing-estimate");
+    formData.set("website_url", "");
     formData.set("email", email.trim());
     formData.set("sqft", String(sqft));
     formData.set("budgetTier", tiers[tier].name);
@@ -185,6 +186,15 @@ export default function PricingToolSection({
                   </p>
                 ) : (
                   <form onSubmit={sendEstimateEmail} className="flex gap-2">
+                    <input
+                      type="text"
+                      name="website_url"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      className="hidden"
+                      aria-hidden
+                      defaultValue=""
+                    />
                     <input
                       type="email"
                       value={email}

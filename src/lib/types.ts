@@ -30,6 +30,15 @@ export type Testimonial = {
   updated_at: string;
 };
 
+export type LeadStatus =
+  | "new"
+  | "contacted"
+  | "reviewed"
+  | "quoted"
+  | "won"
+  | "lost"
+  | "spam";
+
 export type WebsiteLead = {
   id: string;
   created_at: string;
@@ -46,6 +55,11 @@ export type WebsiteLead = {
   estimate_min: string | null;
   estimate_max: string | null;
   sqft: string | null;
+  status: LeadStatus;
+  notes: string | null;
+  has_floor_plan: boolean;
+  contacted_at: string | null;
+  updated_at: string | null;
 };
 
 export type BlogPost = {
@@ -111,6 +125,7 @@ export type PageImage = {
   page_group: string;
   label: string;
   image_url: string;
+  media_type: "image" | "video";
   alt_text: string | null;
   sort_order: number;
   created_at: string;

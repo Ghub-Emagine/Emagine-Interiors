@@ -6,8 +6,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import BrandMark from "@/components/layout/BrandMark";
 import { SITE_IMAGES } from "@/lib/site-images";
 import type { HeroSlide } from "@/lib/types";
+import type { PageCopyItem } from "@/lib/page-copy-slots";
+import { copyField, copyMeta } from "@/lib/page-copy-slots";
 
-const ROTATING_WORDS = [
+const DEFAULT_WORDS = [
   "layout",
   "kitchen",
   "wardrobe",
@@ -37,13 +39,12 @@ function TypeCycle({ words }: { words: string[] }) {
     }
 
     const t = setTimeout(() => {
-      setDisplay((prev) =>
+      setDisplay(
         deleting
-          ? word.slice(0, prev.length - 1)
-          : word.slice(0, prev.length + 1),
+          ? word.slice(0, Math.max(0, display.length - 1))
+          : word.slice(0, display.length + 1),
       );
     }, speed);
-
     return () => clearTimeout(t);
   }, [display, deleting, index, words]);
 
@@ -54,7 +55,13 @@ function TypeCycle({ words }: { words: string[] }) {
   );
 }
 
-export default function HeroSection({ slides }: { slides: HeroSlide[] }) {
+export default function HeroSection({
+  slides,
+  copy,
+}: {
+  slides: HeroSlide[];
+  copy: Record<string, PageCopyItem>;
+}) {
   const safeSlides =
     slides.length > 0
       ? slides
@@ -72,12 +79,51 @@ export default function HeroSection({ slides }: { slides: HeroSlide[] }) {
           },
         ];
 
+  const headline = copyField(
+    copy,
+    "hero_main",
+    "title",
+    "Full-home interiors for Chennai flats—planned from your builder",
+  );
+  const subcopy = copyField(
+    copy,
+    "hero_main",
+    "body",
+    "Modular kitchens, wardrobes, and turnkey rooms—planned against your actual floor plan.",
+  );
+  const words =
+    copyMeta<string[]>(copy, "hero_main", "rotating_words", DEFAULT_WORDS) ||
+    DEFAULT_WORDS;
+  const ctaPrimary = copyMeta(
+    copy,
+    "hero_main",
+    "cta_primary",
+    "Get free price estimate",
+  );
+  const ctaSecondary = copyMeta(
+    copy,
+    "hero_main",
+    "cta_secondary",
+    "Free layout review",
+  );
+  const ctaPrimaryHref = copyMeta(
+    copy,
+    "hero_main",
+    "cta_primary_href",
+    "/#evaluate",
+  );
+  const ctaSecondaryHref = copyMeta(
+    copy,
+    "hero_main",
+    "cta_secondary_href",
+    "/#apply",
+  );
+
   const [slide, setSlide] = useState(0);
   const current = safeSlides[slide % safeSlides.length];
 
   useEffect(() => {
     if (safeSlides.length < 2) return;
-    // Videos: advance after 8s; images 5.5s
     const ms = current.media_type === "video" ? 8000 : 5500;
     const id = setInterval(() => {
       setSlide((s) => (s + 1) % safeSlides.length);
@@ -87,14 +133,14 @@ export default function HeroSection({ slides }: { slides: HeroSlide[] }) {
 
   return (
     <section className="relative min-h-[calc(100vh-5.5rem)] md:min-h-[calc(100vh-6rem)] flex items-end md:items-center overflow-hidden">
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         <motion.div
-          key={current.id}
+          key={current.id + slide}
           className="absolute inset-0"
-          initial={{ opacity: 0, scale: 1.06 }}
+          initial={{ opacity: 0, scale: 1.04 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
         >
           {current.media_type === "video" ? (
             <video
@@ -133,28 +179,25 @@ export default function HeroSection({ slides }: { slides: HeroSlide[] }) {
           <BrandMark variant="onDark" size="hero" withStudio priority />
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif text-[#FBFBFA]/95 leading-snug tracking-tight font-medium">
-            Full-home interiors for Chennai flats—planned from your builder{" "}
-            <TypeCycle words={ROTATING_WORDS} />.
+            {headline} <TypeCycle words={words} />.
           </h1>
 
           <p className="text-base md:text-lg text-[#FBFBFA]/75 max-w-lg leading-relaxed">
-            Modular kitchens, wardrobes, and turnkey rooms—planned against your
-            actual floor plan so light, flow, and materials are decided before
-            you spend.
+            {subcopy}
           </p>
 
           <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <Link
-              href="/#evaluate"
-              className="bg-[var(--accent-gold-bright)] text-[var(--text-primary)] hover:bg-[#FBFBFA] px-8 py-4 text-xs uppercase tracking-widest font-semibold text-center transition-all"
+              href={ctaPrimaryHref}
+              className="bg-[var(--accent-gold-bright)] text-[var(--text-primary)] hover:bg-[#FBFBFA] px-8 py-4 text-xs uppercase tracking-widest font-semibold text-center transition-all min-h-[48px] flex items-center justify-center"
             >
-              Get free price estimate
+              {ctaPrimary}
             </Link>
             <Link
-              href="/#apply"
-              className="border border-[#FBFBFA]/40 text-[#FBFBFA] hover:bg-[#FBFBFA]/10 px-8 py-4 text-xs uppercase tracking-widest font-semibold text-center transition-all"
+              href={ctaSecondaryHref}
+              className="border border-[#FBFBFA]/40 text-[#FBFBFA] hover:bg-[#FBFBFA]/10 px-8 py-4 text-xs uppercase tracking-widest font-semibold text-center transition-all min-h-[48px] flex items-center justify-center"
             >
-              Free layout review
+              {ctaSecondary}
             </Link>
           </div>
 

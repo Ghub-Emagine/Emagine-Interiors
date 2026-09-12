@@ -2,20 +2,23 @@
 
 import { usePathname } from "next/navigation";
 import { BRAND_INFO } from "@/lib/constants";
+import { trackContactClick } from "@/lib/track-conversion";
 
-export default function WhatsAppFloat() {
+export default function WhatsAppFloat({ whatsapp }: { whatsapp?: string }) {
   const pathname = usePathname();
 
   if (pathname?.startsWith("/admin")) return null;
 
+  const number = whatsapp || BRAND_INFO.contact.whatsapp;
+
   const prefill =
     pathname === "/layout-review"
-      ? "Hi Emagine — I'd like a free layout review for my Chennai flat."
+      ? "Hi Emagine - I'd like a free layout review for my Chennai flat."
       : pathname === "/why-us"
-        ? "Hi Emagine — I want to know why EDS is different for my flat."
-        : "Hi Emagine — I'd like to talk about interiors for my Chennai flat.";
+        ? "Hi Emagine - I want to know why EDS is different for my flat."
+        : "Hi Emagine - I'd like to talk about interiors for my Chennai flat.";
 
-  const href = `https://wa.me/${BRAND_INFO.contact.whatsapp}?text=${encodeURIComponent(prefill)}`;
+  const href = `https://wa.me/${number}?text=${encodeURIComponent(prefill)}`;
 
   return (
     <a
@@ -23,7 +26,8 @@ export default function WhatsAppFloat() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-5 right-5 z-[60] flex items-center gap-2.5 rounded-full bg-[#25D366] text-white pl-3.5 pr-5 py-3 shadow-[0_12px_40px_rgba(37,211,102,0.45)] hover:brightness-105 hover:scale-[1.02] transition-all"
+      onClick={() => trackContactClick("whatsapp")}
+      className="fixed bottom-[4.75rem] md:bottom-5 right-5 z-[60] flex items-center gap-2.5 rounded-full bg-[#25D366] text-white pl-3.5 pr-5 py-3 shadow-[0_12px_40px_rgba(37,211,102,0.45)] hover:brightness-105 hover:scale-[1.02] transition-all"
     >
       <svg
         width="22"

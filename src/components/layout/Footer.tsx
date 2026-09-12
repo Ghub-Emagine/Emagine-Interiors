@@ -1,9 +1,16 @@
 import Link from "next/link";
-import { BRAND_INFO } from "@/lib/constants";
 import BrandMark from "@/components/layout/BrandMark";
+import { BRAND_INFO } from "@/lib/constants";
 
-export default function Footer() {
-  const whatsappHref = `https://wa.me/${BRAND_INFO.contact.whatsapp}?text=${encodeURIComponent(
+type Brand = {
+  name: string;
+  tagline: string;
+  contact: { email: string; whatsapp: string; location: string };
+};
+
+export default function Footer({ brand }: { brand?: Brand }) {
+  const b = brand ?? BRAND_INFO;
+  const whatsappHref = `https://wa.me/${b.contact.whatsapp}?text=${encodeURIComponent(
     "Hi Emagine — I'd like to talk about interiors for my Chennai flat.",
   )}`;
 
@@ -13,9 +20,9 @@ export default function Footer() {
         <div className="md:col-span-5 max-w-sm">
           <BrandMark variant="onDark" size="footer" withStudio />
           <p className="text-white/55 text-sm mt-5 mb-6 leading-relaxed">
-            {BRAND_INFO.tagline}
+            {b.tagline}
           </p>
-          <p className="text-sm text-white/70">{BRAND_INFO.contact.location}</p>
+          <p className="text-sm text-white/70">{b.contact.location}</p>
           <p className="text-xs text-white/40 mt-2">Independent Chennai studio</p>
         </div>
 
@@ -78,10 +85,10 @@ export default function Footer() {
             Talk to us
           </span>
           <a
-            href={`mailto:${BRAND_INFO.contact.email}`}
+            href={`mailto:${b.contact.email}`}
             className="text-white/75 hover:text-[var(--accent-gold-bright)]"
           >
-            {BRAND_INFO.contact.email}
+            {b.contact.email}
           </a>
           <a
             href={whatsappHref}
@@ -102,7 +109,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 mt-14 pt-6 border-t border-white/10 text-xs text-white/40 flex flex-col sm:flex-row justify-between gap-3">
         <span>
-          © {new Date().getFullYear()} {BRAND_INFO.name}. All rights reserved.
+          © {new Date().getFullYear()} {b.name}. All rights reserved.
         </span>
         <div className="flex flex-wrap gap-4">
           <Link href="/privacy" className="hover:text-[var(--accent-gold-bright)]">

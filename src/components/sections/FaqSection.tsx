@@ -4,13 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import type { SiteContentItem } from "@/lib/types";
+import type { PageMedia } from "@/lib/page-image-slots";
+import SlotMedia from "@/components/ui/SlotMedia";
 
 export default function FaqSection({
   items,
-  sideImage,
+  sideMedia,
 }: {
   items: SiteContentItem[];
-  sideImage: string;
+  sideMedia: PageMedia;
 }) {
   const [open, setOpen] = useState<number | null>(0);
 
@@ -29,11 +31,10 @@ export default function FaqSection({
             Straight answers from what Chennai flat owners ask when comparing studios.
           </p>
           <div className="hidden lg:block aspect-[4/5] relative overflow-hidden border border-[var(--border)] group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={sideImage}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            <SlotMedia
+              url={sideMedia.url}
+              mediaType={sideMedia.media_type}
+              imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
           </div>
         </div>

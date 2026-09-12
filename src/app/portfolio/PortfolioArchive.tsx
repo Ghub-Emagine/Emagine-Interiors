@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import type { PortfolioProject } from "@/lib/types";
@@ -17,6 +19,55 @@ export default function PortfolioArchive({
 }: {
   projects: PortfolioProject[];
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const developerFilter = searchParams.get("developer")?.trim() || "";
+  const tierFilter = searchParams.get("tier")?.trim() || "";
+
+  const developers = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of projects) {
+      if (p.developer?.trim()) set.add(p.developer.trim());
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [projects]);
+
+  const tiers = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of projects) {
+      if (p.tier?.trim()) set.add(p.tier.trim());
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [projects]);
+
+  const setFilter = useCallback(
+    (key: "developer" | "tier", value: string) => {
+      const q = new URLSearchParams(searchParams.toString());
+      if (value) q.set(key, value);
+      else q.delete(key);
+      const s = q.toString();
+      router.replace(s ? `${pathname}?${s}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const filtered = useMemo(() => {
+    return projects.filter((p) => {
+      if (developerFilter && (p.developer?.trim() || "") !== developerFilter) {
+        return false;
+      }
+      if (tierFilter && (p.tier?.trim() || "") !== tierFilter) {
+        return false;
+      }
+      return true;
+    });
+  }, [projects, developerFilter, tierFilter]);
+
+  const selectClass =
+    "bg-[#242424] border border-white/15 text-[#FBFBFA] px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--accent-gold-bright)] min-w-[10rem]";
+
   return (
     <div className="bg-[#1A1A1A] text-[#FBFBFA] min-h-screen">
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-16">
@@ -28,7 +79,7 @@ export default function PortfolioArchive({
           Return Home
         </Link>
 
-        <header className="mb-16 md:mb-20 max-w-2xl">
+        <header className="mb-10 md:mb-12 max-w-2xl">
           <p className="text-xs uppercase tracking-[0.25em] text-[var(--accent-gold-bright)] mb-4">
             Chennai · Selected works
           </p>
@@ -41,13 +92,78 @@ export default function PortfolioArchive({
           </p>
         </header>
 
+        {projects.length > 0 && (developers.length > 0 || tiers.length > 0) && (
+          <div className="mb-10 flex flex-wrap gap-4 items-end border-b border-white/10 pb-8">
+            {developers.length > 0 && (
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-[#FBFBFA]/55 mb-2 font-semibold">
+                  Developer
+                </label>
+                <select
+                  value={developerFilter}
+                  onChange={(e) => setFilter("developer", e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">All developers</option>
+                  {developers.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {tiers.length > 0 && (
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-[#FBFBFA]/55 mb-2 font-semibold">
+                  Tier
+                </label>
+                <select
+                  value={tierFilter}
+                  onChange={(e) => setFilter("tier", e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">All tiers</option>
+                  {tiers.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {(developerFilter || tierFilter) && (
+              <button
+                type="button"
+                onClick={() => {
+                  router.replace(pathname, { scroll: false });
+                }}
+                className="text-xs uppercase tracking-widest text-[var(--accent-gold-bright)] hover:underline py-2.5"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
+
         {projects.length === 0 ? (
           <p className="text-[#FBFBFA]/60 text-sm">
             No published projects yet. Check back soon.
           </p>
+        ) : filtered.length === 0 ? (
+          <p className="text-[#FBFBFA]/60 text-sm">
+            No projects match these filters.{" "}
+            <button
+              type="button"
+              onClick={() => router.replace(pathname, { scroll: false })}
+              className="text-[var(--accent-gold-bright)] underline"
+            >
+              Clear filters
+            </button>
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5">
-            {projects.map((project, index) => (
+            {filtered.map((project, index) => (
               <motion.article
                 key={project.id}
                 className={`group relative overflow-hidden bg-[#242424] ${
@@ -66,6 +182,7 @@ export default function PortfolioArchive({
                   <span className="sr-only">View {project.title}</span>
                 </Link>
                 {project.cover_image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={project.cover_image_url}
                     alt={project.title}
