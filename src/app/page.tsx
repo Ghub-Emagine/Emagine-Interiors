@@ -1,4 +1,5 @@
 import HeroSectionLoader from "@/components/sections/HeroSectionLoader";
+import TrustMarquee from "@/components/sections/TrustMarquee";
 import PromiseStripLoader from "@/components/sections/PromiseStripLoader";
 import PortfolioSection from "@/components/sections/PortfolioSection";
 import RoomDesignsSectionLoader from "@/components/sections/RoomDesignsSectionLoader";
@@ -25,6 +26,7 @@ export default async function Home() {
   return (
     <>
       <HeroSectionLoader />
+      <TrustMarquee />
       <PromiseStripLoader />
       <PortfolioSection />
       <RoomDesignsSectionLoader />

@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase-public-env";
 
 let adminClient: SupabaseClient | null = null;
 let publicClient: SupabaseClient | null = null;
@@ -12,14 +13,7 @@ function readEnv(name: string) {
 /** Anon client for public writes (leads) and reads — always available via NEXT_PUBLIC_* */
 export function getSupabasePublic() {
   if (publicClient) return publicClient;
-  const url = readEnv("NEXT_PUBLIC_SUPABASE_URL");
-  const key = readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  if (!url || !key) {
-    throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. Check .env.local and restart npm run dev.",
-    );
-  }
-  publicClient = createClient(url, key, {
+  publicClient = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   return publicClient;
@@ -28,9 +22,9 @@ export function getSupabasePublic() {
 /** Service-role client when available (optional for lead inserts). */
 export function getSupabaseAdmin() {
   if (adminClient) return adminClient;
-  const url = readEnv("NEXT_PUBLIC_SUPABASE_URL");
+  const url = getSupabaseUrl();
   const key = readEnv("SUPABASE_SERVICE_ROLE_KEY");
-  if (!url || !key) {
+  if (!key) {
     // Fall back to anon — requires INSERT policy on website_leads
     return getSupabasePublic();
   }
@@ -42,9 +36,8 @@ export function getSupabaseAdmin() {
 
 /** Prefer service role; falls back to anon for form inserts */
 export function getSupabaseForLeads() {
-  const url = readEnv("NEXT_PUBLIC_SUPABASE_URL");
   const serviceKey = readEnv("SUPABASE_SERVICE_ROLE_KEY");
-  if (url && serviceKey) return getSupabaseAdmin();
+  if (serviceKey) return getSupabaseAdmin();
   return getSupabasePublic();
 }
 

@@ -1,5 +1,6 @@
 import { BRAND_INFO } from "@/lib/constants";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase-public-env";
 
 export type SiteSettings = {
   brand_name: string;
@@ -37,12 +38,7 @@ export const SITE_SETTING_KEYS = Object.keys(
 ) as (keyof SiteSettings)[];
 
 function createPublicClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) {
-    throw new Error("Missing Supabase public env");
-  }
-  return createClient(url, key);
+  return createClient(getSupabaseUrl(), getSupabaseAnonKey());
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
